@@ -3,19 +3,10 @@
 import { Suspense, useMemo } from "react";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  Answers,
-  OWNER_QUESTIONS,
-  PET_QUESTIONS,
-  computeScores,
-  matchScore,
-  toCode,
-  typeNameOf,
-} from "../../lib/quiz";
+import { matchScore, toCode, typeNameOf } from "../../lib/quiz";
+import { decodeShare } from "../../lib/share-code";
 import { Locale, isLocale, t } from "../../lib/i18n";
 import RadarChart from "./RadarChart";
-
-type PetKind = "dog" | "cat";
 
 function ResultInner() {
   const params = useParams<{ locale: string }>();
@@ -58,6 +49,24 @@ function ResultInner() {
       .writeText(window.location.href)
       .then(() => alert(t(locale, "share_link_copied")))
       .catch(() => {});
+  }
+
+  async function nativeShare() {
+    if (typeof navigator === "undefined" || !(navigator as any).share) {
+      copyLink();
+      return;
+    }
+    try {
+      await (navigator as any).share({
+        title: "PawType-16",
+        text:
+          t(locale, "result_headline", { name: petName }) +
+          " " +
+          match.score +
+          "!",
+        url: window.location.href,
+      });
+    } catch {}
   }
 
   function restart() {
