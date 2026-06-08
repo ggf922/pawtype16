@@ -1,0 +1,21 @@
+{
+  "name": "PawType-16",
+  "short_name": "PawType",
+  "description": "Big Five-based chemistry test between you and your pet.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF7F0",
+  "theme_color": "#F5EFE6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "lang": "ko",
+  "categories": ["lifestyle", "entertainment", "pets"]
+}
