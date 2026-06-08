@@ -24,6 +24,15 @@ export default function HomePage({ params }: { params: { locale: string } }) {
           <div className="flex items-center gap-3">
             <LocaleSwitcher current={locale} />
             <AuthButton locale={locale} />
+            <a
+              href="https://modoomodoo.com/mcategory.php?category=575"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:inline-flex items-center rounded-full bg-beige text-cocoa text-sm font-medium px-3 py-2 hover:bg-beige/80 transition"
+              aria-label="PawMarket"
+            >
+              {t(locale, "shop_nav")}
+            </a>
             <Link
               href={`/${locale}/quiz`}
               className="hidden md:inline-flex items-center rounded-full bg-cocoa text-white text-sm px-4 py-2 hover:bg-cocoa/90 transition"
@@ -208,6 +217,41 @@ export default function HomePage({ params }: { params: { locale: string } }) {
                 </footer>
               </blockquote>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PawMarket Shop Section */}
+      <section className="bg-cream">
+        <div className="mx-auto max-w-5xl px-5 py-16 md:py-20">
+          <div className="rounded-3xl bg-gradient-to-br from-beige/60 via-cream to-beige/40 border border-beige p-8 md:p-12 shadow-sm">
+            <div className="grid md:grid-cols-3 gap-8 items-center">
+              <div className="md:col-span-2">
+                <div className="inline-flex items-center gap-2 text-xs font-semibold text-accent bg-white/70 rounded-full px-3 py-1.5 mb-4">
+                  <span>🛒</span>
+                  <span>PawMarket</span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-extrabold text-charcoal leading-tight">
+                  {t(locale, "shop_title")}
+                </h2>
+                <p className="mt-3 text-charcoal/70 leading-relaxed text-sm md:text-base">
+                  {t(locale, "shop_desc")}
+                </p>
+                <a
+                  href="https://modoomodoo.com/mcategory.php?category=575"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center justify-center rounded-full bg-accent text-white text-sm font-semibold px-6 py-3 shadow-lg shadow-accent/20 hover:bg-accent/90 transition"
+                >
+                  {t(locale, "shop_cta")}
+                </a>
+              </div>
+              <div className="flex justify-center md:justify-end">
+                <div className="text-7xl md:text-8xl drop-shadow-sm select-none" aria-hidden>
+                  🛍️🐾
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
