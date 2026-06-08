@@ -114,6 +114,12 @@ type Dict = {
 
   // common v4
   quiz_restored: string;
+  shop_nav: string;
+  shop_title: string;
+  shop_desc: string;
+  shop_cta: string;
+  shop_result_title: string;
+  shop_result_desc: string;
   share_native: string;
 
   // auth
@@ -233,6 +239,12 @@ const ko: Dict = {
   not_found_cta: "검사 다시하기 →",
 
   quiz_restored: "이전 진행 상황을 불러왔어요",
+  shop_nav: "🛒 PawMarket",
+  shop_title: "우리 아이에게 딱! 추천 굿즈",
+  shop_desc: "PawType-16이 엄선한 반려용품을 만나보세요. 사료·간식·장난감·케어용품까지, 우리 아이에게 꼭 맞는 한 가지를 골라드려요.",
+  shop_cta: "PawMarket 보러가기 →",
+  shop_result_title: "이 케미에 어울리는 굿즈",
+  shop_result_desc: "진단 결과를 기념할 우리 아이만의 굿즈, PawMarket에서 만나요",
   share_native: "공유",
 
   auth_login: "로그인",
@@ -343,6 +355,12 @@ const en: Dict = {
   not_found_cta: "Restart test →",
 
   quiz_restored: "Restored your previous progress",
+  shop_nav: "🛒 PawMarket",
+  shop_title: "Perfect picks for your buddy!",
+  shop_desc: "Discover pet essentials curated by PawType-16. From food and treats to toys and care products, find exactly what your companion needs.",
+  shop_cta: "Visit PawMarket →",
+  shop_result_title: "Goodies for this chemistry",
+  shop_result_desc: "Celebrate your result with curated goods from PawMarket — made for your unique duo",
   share_native: "Share",
 
   auth_login: "Sign in",
@@ -453,6 +471,12 @@ const de: Dict = {
   not_found_cta: "Test neu starten →",
 
   quiz_restored: "Vorheriger Fortschritt wiederhergestellt",
+  shop_nav: "🛒 PawMarket",
+  shop_title: "Genau das Richtige für euren Liebling!",
+  shop_desc: "Entdecke handverlesene Haustierprodukte von PawType-16. Von Futter bis Spielzeug — wir finden, was zu eurem Duo passt.",
+  shop_cta: "PawMarket besuchen →",
+  shop_result_title: "Passende Produkte zu dieser Chemie",
+  shop_result_desc: "Feiert euer Ergebnis mit kuratierten Produkten aus PawMarket — gemacht für euer einzigartiges Duo",
   share_native: "Teilen",
 
   auth_login: "Anmelden",
@@ -563,6 +587,12 @@ const es: Dict = {
   not_found_cta: "Reintentar →",
 
   quiz_restored: "Progreso anterior restaurado",
+  shop_nav: "🛒 PawMarket",
+  shop_title: "¡Lo ideal para tu peludo!",
+  shop_desc: "Descubre productos para mascotas seleccionados por PawType-16. Comida, snacks, juguetes y cuidados a la medida de tu compañero.",
+  shop_cta: "Visitar PawMarket →",
+  shop_result_title: "Productos para esta química",
+  shop_result_desc: "Celebra tu resultado con productos seleccionados en PawMarket — hechos para tu dúo único",
   share_native: "Compartir",
 
   auth_login: "Iniciar sesión",
@@ -673,6 +703,12 @@ const zh: Dict = {
   not_found_cta: "重新开始 →",
 
   quiz_restored: "已恢复上次进度",
+  shop_nav: "🛒 PawMarket",
+  shop_title: "为你家宝贝精选的好物!",
+  shop_desc: "探索 PawType-16 精选的宠物用品。食品、零食、玩具与护理品,为你的伙伴量身挑选。",
+  shop_cta: "前往 PawMarket →",
+  shop_result_title: "契合这份默契的好物",
+  shop_result_desc: "用 PawMarket 精选好物纪念你们独一无二的羁绊",
   share_native: "分享",
 
   auth_login: "登录",
@@ -783,6 +819,12 @@ const ja: Dict = {
   not_found_cta: "テストをやり直す →",
 
   quiz_restored: "前回の進行状況を復元しました",
+  shop_nav: "🛒 PawMarket",
+  shop_title: "うちの子にぴったり!おすすめグッズ",
+  shop_desc: "PawType-16が厳選したペット用品。フード・おやつ・おもちゃ・ケア用品まで、あなたの相棒にぴったりの一品を。",
+  shop_cta: "PawMarketを見る →",
+  shop_result_title: "このケミに似合うグッズ",
+  shop_result_desc: "診断結果を記念する特別な一品を、PawMarketで見つけて",
   share_native: "シェア",
 
   auth_login: "ログイン",
@@ -893,6 +935,12 @@ const ar: Dict = {
   not_found_cta: "إعادة الاختبار →",
 
   quiz_restored: "تمت استعادة تقدمك السابق",
+  shop_nav: "🛒 PawMarket",
+  shop_title: "الأفضل لرفيقك الصغير!",
+  shop_desc: "اكتشف منتجات الحيوانات الأليفة المختارة من PawType-16. طعام ومكافآت وألعاب ومستلزمات عناية، كل ما يحتاجه رفيقك.",
+  shop_cta: "زيارة PawMarket →",
+  shop_result_title: "منتجات تليق بهذه الكيمياء",
+  shop_result_desc: "احتفل بنتيجتك مع منتجات مختارة من PawMarket — صُنعت لثنائيكما الفريد",
   share_native: "مشاركة",
 
   auth_login: "تسجيل الدخول",
