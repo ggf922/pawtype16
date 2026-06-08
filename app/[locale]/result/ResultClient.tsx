@@ -218,6 +218,39 @@ function ResultInner() {
         </div>
       </section>
 
+      {/* PawMarket Recommendation */}
+      <section className="mx-auto max-w-6xl px-5 mt-10">
+        <a
+          href="https://modoomodoo.com/mcategory.php?category=575"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group block rounded-2xl bg-gradient-to-br from-accent/10 via-beige/40 to-cream border border-beige p-6 md:p-8 hover:shadow-lg transition-shadow"
+        >
+          <div className="flex items-center gap-5 md:gap-7">
+            <div className="text-5xl md:text-6xl select-none flex-shrink-0" aria-hidden>
+              🛒🐾
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-semibold text-accent mb-1">
+                🛒 PawMarket
+              </div>
+              <h3 className="text-lg md:text-xl font-bold text-charcoal">
+                {t(locale, "shop_result_title")}
+              </h3>
+              <p className="mt-1 text-sm text-charcoal/70">
+                {t(locale, "shop_result_desc")}
+              </p>
+            </div>
+            <div className="hidden md:flex flex-shrink-0 items-center justify-center rounded-full bg-accent text-white text-sm font-semibold px-5 py-3 group-hover:bg-accent/90 transition">
+              {t(locale, "shop_cta")}
+            </div>
+          </div>
+          <div className="mt-4 md:hidden text-center text-sm font-semibold text-accent">
+            {t(locale, "shop_cta")}
+          </div>
+        </a>
+      </section>
+
       {/* Upsell */}
       <section className="mx-auto max-w-6xl px-5 mt-10 grid gap-4 md:grid-cols-3">
         <UpsellCard
