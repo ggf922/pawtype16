@@ -1,0 +1,42 @@
+# GitHub Actions — basic CI for every push and pull request.
+# Verifies that the project builds cleanly on a fresh Node.js environment.
+# This catches issues BEFORE Vercel deploys.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          # Dummy values so the build doesn't fail on missing env vars.
+          # Real keys are set in Vercel project settings.
+          NEXT_PUBLIC_SITE_URL: https://example.com
