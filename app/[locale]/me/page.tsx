@@ -15,12 +15,13 @@ export const dynamic = "force-dynamic";
 export default async function MyPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  if (!isLocale(params.locale)) {
+  const { locale: rawLocale } = await params;
+  if (!isLocale(rawLocale)) {
     redirect("/ko/me");
   }
-  const locale = params.locale as Locale;
+  const locale = rawLocale as Locale;
   const T = (k: any, vars?: any) => t(locale, k, vars);
 
   const sb = getServerSupabase();
@@ -146,9 +147,17 @@ export default async function MyPage({
                   </div>
                   <div className="mt-2 text-xs text-charcoal/50">
                     {r.created_at
-                      ? new Date(r.created_at).toLocaleString()
+                      ? new Date(r.created_at).toLocaleString("ko-KR", {
+                          timeZone: "Asia/Seoul",
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
                       : ""}
                   </div>
+
                 </article>
               ))}
             </div>
@@ -173,9 +182,12 @@ export default async function MyPage({
                     >
                       <td className="py-3 px-4 text-charcoal/70 whitespace-nowrap">
                         {r.created_at
-                          ? new Date(r.created_at).toLocaleDateString()
+                          ? new Date(r.created_at).toLocaleDateString("ko-KR", {
+                              timeZone: "Asia/Seoul",
+                            })
                           : "-"}
                       </td>
+
                       <td className="py-3 px-4">
                         <span className="mr-2">
                           {r.pet_kind === "cat" ? "🐱" : "🐶"}
