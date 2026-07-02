@@ -1,37 +1,48 @@
 import { NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-/**
- * Locale-aware OAuth callback redirect.
- *
- * When OAuth provider redirects to /[locale]/auth/callback?code=...
- * (e.g., /ko/auth/callback?code=...), this route forwards the request
- * to the actual handler at /auth/callback while preserving the locale
- * in the `next` query parameter.
- */
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const newUrl = new URL("/auth/callback", url.origin);
-
-  // Forward all query parameters (code, error, error_description, etc.)
-  url.searchParams.forEach((value, key) => {
-    newUrl.searchParams.set(key, value);
-  });
-
-  // Extract locale from path: /ko/auth/callback -> "ko"
+  const code = url.searchParams.get("code");
   const pathSegments = url.pathname.split("/").filter(Boolean);
   const locale = pathSegments[0] || "ko";
+  const nextParam = url.searchParams.get("next");
 
-  // Ensure `next` includes locale prefix so user returns to localized page
-  const existingNext = url.searchParams.get("next");
-  if (existingNext) {
-    // Decode in case it's URL-encoded
-    const decoded = decodeURIComponent(existingNext);
-    if (!decoded.startsWith(`/${locale}`)) {
-      newUrl.searchParams.set("next", `/${locale}${decoded.startsWith("/") ? decoded : "/" + decoded}`);
-    }
-  } else {
-    newUrl.searchParams.set("next", `/${locale}/me`);
+  // 최종 이동할 경로 결정
+  let redirectPath = `/${locale}/me`;
+  if (nextParam) {
+    const decoded = decodeURIComponent(nextParam);
+    redirectPath = decoded.startsWith(`/${locale}`)
+      ? decoded
+      : `/${locale}${decoded.startsWith("/") ? decoded : "/" + decoded}`;
   }
 
-  return NextResponse.redirect(newUrl);
+  if (code) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          },
+        },
+      }
+    );
+
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) {
+      console.error("OAuth exchange error:", error.message);
+      return NextResponse.redirect(new URL(`/${locale}?auth_error=1`, url.origin));
+    }
+  }
+
+  return NextResponse.redirect(new URL(redirectPath, url.origin));
 }
