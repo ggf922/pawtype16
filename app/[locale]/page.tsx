@@ -354,7 +354,7 @@ export default function HomePage({ params }: { params: { locale: string } }) {
               </li>
             </ul>
           </div>
-
+         </div>
 
         <div className="border-t border-cream/10 text-center text-xs text-cream/50 py-4 px-5">
           © 2026 PawType-16 · 큰바구니. All rights reserved.
