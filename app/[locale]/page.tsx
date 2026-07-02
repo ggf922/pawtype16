@@ -274,19 +274,90 @@ export default function HomePage({ params }: { params: { locale: string } }) {
 
       {/* Footer */}
       <footer className="bg-cocoa/95 text-cream/90">
-        <div className="mx-auto max-w-6xl px-5 py-10 grid gap-6 md:grid-cols-4 text-sm">
+        <div className="mx-auto max-w-6xl px-5 py-10 grid gap-8 md:grid-cols-4 text-sm">
+          {/* Brand */}
           <div>
             <div className="font-bold text-lg">🐾 PawType-16</div>
             <p className="mt-2 text-cream/70 leading-relaxed">
               {t(locale, "brand_tag")}
             </p>
           </div>
-          <div></div>
-          <div></div>
-          <div></div>
+
+          {/* Service */}
+          <div>
+            <div className="font-semibold text-cream mb-3">서비스</div>
+            <ul className="space-y-2 text-cream/70">
+              <li>
+                <Link href={`/${locale}/quiz`} className="hover:text-cream transition">
+                  검사 시작
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${locale}/me`} className="hover:text-cream transition">
+                  마이페이지
+                </Link>
+              </li>
+              <li>
+                <a
+                  href="https://modoomodoo.com/mcategory.php?category=575"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-cream transition"
+                >
+                  PawMarket
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <div className="font-semibold text-cream mb-3">약관</div>
+            <ul className="space-y-2 text-cream/70">
+              <li>
+                <Link href={`/${locale}/terms`} className="hover:text-cream transition">
+                  이용약관
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/privacy`}
+                  className="hover:text-cream transition font-medium"
+                >
+                  개인정보처리방침
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Business info */}
+          <div>
+            <div className="font-semibold text-cream mb-3">사업자 정보</div>
+            <ul className="space-y-1.5 text-cream/60 text-xs leading-relaxed">
+              <li>상호: 모두모두</li>
+              <li>대표: 임몽규</li>
+              <li>사업자등록: 806-58-00641</li>
+              <li>통신판매업: 2024-경기시흥-1913호</li>
+              <li>소재지: 경기도 시흥시</li>
+              <li className="pt-1">
+                <a
+                  href="mailto:modoomodoo88@gmail.com"
+                  className="hover:text-cream transition"
+                >
+                  ✉ modoomodoo88@gmail.com
+                </a>
+              </li>
+              <li>
+                <a href="tel:010-8265-1123" className="hover:text-cream transition">
+                  ☎ 010-8265-1123
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
-        <div className="border-t border-cream/10 text-center text-xs text-cream/50 py-4">
-          © 2026 PawType-16
+
+        <div className="border-t border-cream/10 text-center text-xs text-cream/50 py-4 px-5">
+          © 2026 PawType-16 · 모두모두. All rights reserved.
         </div>
       </footer>
     </main>

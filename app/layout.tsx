@@ -15,7 +15,9 @@ export const metadata: Metadata = {
   applicationName: "PawType-16",
   keywords: [
     "PawType",
-    "반려동물 MBTI",
+    "반려동물 성격",
+    "반려동물 궁합",
+    "펫 성향 테스트",
     "반려견 성격",
     "반려묘 성격",
     "Big Five",
