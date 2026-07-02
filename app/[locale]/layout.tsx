@@ -6,19 +6,20 @@ export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
 }
 
-export default function LocaleLayout({
+export default async function LocaleLayout({
   children,
   params,
 }: {
   children: ReactNode;
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  if (!isLocale(params.locale)) notFound();
-  const locale = params.locale as Locale;
+  const { locale: rawLocale } = await params;
+  if (!isLocale(rawLocale)) notFound();
+  const locale = rawLocale as Locale;
   const dir = getDir(locale);
   return (
-    <html lang={locale} dir={dir}>
-      <body className="font-sans">{children}</body>
-    </html>
+    <div lang={locale} dir={dir}>
+      {children}
+    </div>
   );
 }

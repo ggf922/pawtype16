@@ -68,5 +68,10 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <html lang="ko">
+      <body className="font-sans">{children}</body>
+    </html>
+  );
 }
+
