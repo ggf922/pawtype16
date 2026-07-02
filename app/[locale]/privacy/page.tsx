@@ -49,7 +49,7 @@ export default async function PrivacyPage({
 
         <div className="mt-6 rounded-2xl bg-white border border-beige p-5 text-sm text-charcoal/80 leading-relaxed">
           <p>
-            <strong className="text-cocoa">모두모두</strong>(이하 &ldquo;회사&rdquo;)는
+            <strong className="text-cocoa">큰바구니</strong>(브랜드명 &ldquo;모두모두&rdquo;, 이하 &ldquo;회사&rdquo;)는
             이용자의 개인정보를 소중히 여기며,
             「개인정보 보호법」 등 관련 법령을 준수합니다. 본 방침은
             <strong className="text-cocoa"> PawType-16</strong> 서비스에서

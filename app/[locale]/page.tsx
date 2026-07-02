@@ -334,7 +334,7 @@ export default function HomePage({ params }: { params: { locale: string } }) {
           <div>
             <div className="font-semibold text-cream mb-3">사업자 정보</div>
             <ul className="space-y-1.5 text-cream/60 text-xs leading-relaxed">
-              <li>상호: 모두모두</li>
+              <li>상호: 큰바구니 (브랜드: 모두모두)</li>
               <li>대표: 임몽규</li>
               <li>사업자등록: 806-58-00641</li>
               <li>통신판매업: 2024-경기시흥-1913호</li>
@@ -354,11 +354,12 @@ export default function HomePage({ params }: { params: { locale: string } }) {
               </li>
             </ul>
           </div>
-        </div>
+
 
         <div className="border-t border-cream/10 text-center text-xs text-cream/50 py-4 px-5">
-          © 2026 PawType-16 · 모두모두. All rights reserved.
+          © 2026 PawType-16 · 큰바구니. All rights reserved.
         </div>
+
       </footer>
     </main>
   );

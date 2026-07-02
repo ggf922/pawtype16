@@ -53,7 +53,7 @@ export default async function TermsPage({
               제1조 (목적)
             </h2>
             <p>
-              본 약관은 모두모두(이하 &ldquo;회사&rdquo;)가 운영하는
+              본 약관은 큰바구니(브랜드명 &ldquo;모두모두&rdquo;, 이하 &ldquo;회사&rdquo;)가 운영하는
               PawType-16(이하 &ldquo;서비스&rdquo;)의 이용과 관련하여 회사와
               이용자 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을
               목적으로 합니다.
@@ -243,7 +243,8 @@ export default async function TermsPage({
             </h2>
             <dl className="grid grid-cols-1 sm:grid-cols-[140px_1fr] gap-x-4 gap-y-2 text-sm">
               <dt className="font-medium text-charcoal/60">상호</dt>
-              <dd>모두모두</dd>
+              <dd>큰바구니 (브랜드: 모두모두)</dd>
+
 
               <dt className="font-medium text-charcoal/60">대표자</dt>
               <dd>임몽규</dd>
