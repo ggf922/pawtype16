@@ -24,6 +24,11 @@ export default function SignUpPage() {
     e.preventDefault();
     setError(null);
 
+    if (!sb) {
+      setError("Supabase 클라이언트를 초기화할 수 없습니다.");
+      return;
+    }
+
     // 유효성 검사
     if (!email || !password || !name) {
       setError("이메일, 비밀번호, 이름은 필수입니다.");
