@@ -30,7 +30,7 @@ export default function LocaleSwitcher({ current }: { current: Locale }) {
       <button
         type="button"
         onClick={() => setOpen((s) => !s)}
-        className="text-sm rounded-full border border-beige bg-white px-3 py-1.5 hover:bg-beige/40 transition"
+        className="text-sm rounded-full border border-beige bg-white px-3 py-1.5 hover:bg-beige/40 transition whitespace-nowrap"
         aria-haspopup="listbox"
       >
         🌐 {LOCALE_LABEL[current]}
