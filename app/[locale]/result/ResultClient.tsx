@@ -8,6 +8,7 @@ import { decodeShare } from "../../lib/share-code";
 import { Locale, isLocale, t } from "../../lib/i18n";
 import { getBrowserSupabase } from "../../lib/supabase-browser";
 import RadarChart from "./RadarChart";
+import AdFitBanner from "../../components/AdFitBanner";
 
 function ResultInner() {
   const params = useParams<{ locale: string }>();
@@ -410,11 +411,9 @@ function ResultInner() {
         />
       </section>
 
-      {/* AdFit 광고 영역 자리 (승인 후 컴포넌트 삽입) */}
-      <section className="mx-auto max-w-6xl px-5 mt-10">
-        <div id="adfit-result-bottom" className="flex justify-center">
-          {/* AdFit 승인 후 여기에 <AdFitBanner unitId="..." /> 삽입 */}
-        </div>
+      {/* AdFit 광고 영역 - 활성화됨 */}
+      <AdFitBanner />
+
       </section>
 
       <section className="mx-auto max-w-6xl px-5 mt-10 mb-16 text-center">
