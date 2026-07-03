@@ -12,10 +12,14 @@ type UserInfo = {
   avatar_url?: string | null;
 } | null;
 
-export default function AuthButton() {
+type AuthButtonProps = {
+  locale?: string;
+};
+
+export default function AuthButton({ locale: localeProp }: AuthButtonProps = {}) {
   const params = useParams();
   const router = useRouter();
-  const locale = (params?.locale as string) || "ko";
+  const locale = localeProp || (params?.locale as string) || "ko";
   const sb = getBrowserSupabase();
 
   const [user, setUser] = useState<UserInfo>(null);
