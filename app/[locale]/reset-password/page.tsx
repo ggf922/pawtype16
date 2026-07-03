@@ -19,14 +19,12 @@ export default function ResetPasswordPage() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Supabase 비밀번호 재설정 링크 클릭 시 URL fragment의 access_token이 자동으로 세션에 설정됨
     if (!sb) return;
 
     sb.auth.getSession().then(({ data }) => {
       if (data.session) {
         setReady(true);
       } else {
-        // 세션이 없으면 이벤트로 감지 (fragment 파싱 대기)
         const {
           data: { subscription },
         } = sb.auth.onAuthStateChange((event, session) => {
@@ -34,7 +32,6 @@ export default function ResetPasswordPage() {
             setReady(true);
           }
         });
-        // 3초 후에도 세션 없으면 에러
         setTimeout(() => {
           sb.auth.getSession().then(({ data: d2 }) => {
             if (!d2.session) {
@@ -50,6 +47,11 @@ export default function ResetPasswordPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!sb) {
+      setError("Supabase 클라이언트를 초기화할 수 없습니다.");
+      return;
+    }
 
     if (password.length < 6) {
       setError("비밀번호는 최소 6자 이상이어야 합니다.");
