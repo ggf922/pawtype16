@@ -303,7 +303,7 @@ export default function AuthButton({ locale: localeProp }: AuthButtonProps = {})
       <div className="relative">
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="flex items-center gap-2 rounded-full bg-white border border-charcoal/10 px-3 py-1.5 hover:bg-cream"
+          className="flex items-center gap-2 rounded-full bg-white border border-charcoal/10 px-3 py-1.5 hover:bg-cream whitespace-nowrap"
         >
           {user.avatar_url ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -349,7 +349,7 @@ export default function AuthButton({ locale: localeProp }: AuthButtonProps = {})
     <>
       <button
         onClick={openModal}
-        className="rounded-full bg-accent text-white text-sm font-semibold px-4 py-1.5 hover:bg-accent/90"
+        className="rounded-full bg-accent text-white text-sm font-semibold px-4 py-1.5 hover:bg-accent/90 whitespace-nowrap"
       >
         로그인
       </button>
