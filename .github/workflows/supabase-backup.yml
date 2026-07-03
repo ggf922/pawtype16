@@ -1,0 +1,69 @@
+name: Weekly Supabase Backup
+
+on:
+  schedule:
+    # 매주 일요일 밤 3시 (KST) = 토요일 오후 6시 UTC
+    - cron: "0 18 * * 6"
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Backup Supabase Database
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-16
+
+      - name: Create backup directory
+        run: mkdir -p backups
+
+      - name: Set backup filename
+        id: filename
+        run: |
+          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "filename=supabase-backup-$(date +'%Y-%m-%d').sql" >> $GITHUB_OUTPUT
+
+      - name: Dump Supabase database
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          pg_dump \
+            --host=${{ secrets.SUPABASE_DB_HOST }} \
+            --port=5432 \
+            --username=postgres \
+            --dbname=postgres \
+            --schema=public \
+            --schema=auth \
+            --no-owner \
+            --no-acl \
+            --clean \
+            --if-exists \
+            --file=backups/${{ steps.filename.outputs.filename }}
+
+      - name: Compress backup
+        run: |
+          gzip backups/${{ steps.filename.outputs.filename }}
+          ls -lh backups/
+
+      - name: Upload backup as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-backup-${{ steps.filename.outputs.date }}
+          path: backups/*.sql.gz
+          retention-days: 90
+
+      - name: Report backup size
+        run: |
+          echo "## Backup Report" >> $GITHUB_STEP_SUMMARY
+          echo "Date: ${{ steps.filename.outputs.date }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          ls -lh backups/ >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
