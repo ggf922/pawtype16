@@ -13,15 +13,15 @@ export default function HomePage({ params }: { params: { locale: string } }) {
     <main className="min-h-screen bg-cream">
       {/* Header */}
       <header className="sticky top-0 z-30 backdrop-blur bg-cream/80 border-b border-beige">
-        <div className="mx-auto max-w-6xl px-5 h-14 flex items-center justify-between">
+        <div className="mx-auto max-w-6xl px-3 sm:px-5 h-14 flex items-center justify-between gap-2">
           <Link
             href={`/${locale}`}
-            className="flex items-center gap-1.5 font-bold text-cocoa"
+            className="flex items-center gap-1.5 font-bold text-cocoa whitespace-nowrap"
           >
             <span className="text-xl">🐾</span>
             <span>PawType-16</span>
           </Link>
-          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
             <LocaleSwitcher current={locale} />
             <AuthButton locale={locale} />
             <a
