@@ -23,10 +23,6 @@ export default function AuthButton() {
   const [showModal, setShowModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // 로그인 모드: "signin" | "signup"
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-
-  // 이메일 로그인/가입 폼 상태
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -77,7 +73,10 @@ export default function AuthButton() {
   }, [sb]);
 
   async function handleGoogleSignIn() {
-    if (!sb) return;
+    if (!sb) {
+      setError("Supabase 클라이언트를 초기화할 수 없습니다.");
+      return;
+    }
     setBusy(true);
     const { error } = await sb.auth.signInWithOAuth({
       provider: "google",
@@ -94,27 +93,31 @@ export default function AuthButton() {
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (!sb) {
+      setError("Supabase 클라이언트를 초기화할 수 없습니다.");
+      return;
+    }
+
     setBusy(true);
 
     try {
-      if (mode === "signin") {
-        const { error: signInError } = await sb.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (signInError) {
-          if (signInError.message.includes("Invalid login credentials")) {
-            setError("이메일 또는 비밀번호가 올바르지 않습니다.");
-          } else {
-            setError(signInError.message);
-          }
-          setBusy(false);
-          return;
+      const { error: signInError } = await sb.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (signInError) {
+        if (signInError.message.includes("Invalid login credentials")) {
+          setError("이메일 또는 비밀번호가 올바르지 않습니다.");
+        } else {
+          setError(signInError.message);
         }
-        setShowModal(false);
-        router.push(`/${locale}/me`);
-        router.refresh();
+        setBusy(false);
+        return;
       }
+      setShowModal(false);
+      router.push(`/${locale}/me`);
+      router.refresh();
     } catch (err: any) {
       setError(err?.message || "오류가 발생했습니다.");
       setBusy(false);
@@ -123,7 +126,6 @@ export default function AuthButton() {
 
   function openModal() {
     setShowModal(true);
-    setMode("signin");
     setError(null);
     setEmail("");
     setPassword("");
@@ -215,7 +217,6 @@ export default function AuthButton() {
               </p>
             </div>
 
-            {/* 구글 로그인 (상단) */}
             <button
               onClick={handleGoogleSignIn}
               disabled={busy}
@@ -242,14 +243,12 @@ export default function AuthButton() {
               Google로 계속하기
             </button>
 
-            {/* 구분선 */}
             <div className="flex items-center gap-3 my-4">
               <div className="flex-1 h-px bg-charcoal/10" />
               <span className="text-xs text-charcoal/40">또는</span>
               <div className="flex-1 h-px bg-charcoal/10" />
             </div>
 
-            {/* 이메일 로그인 (하단) */}
             <form onSubmit={handleEmailSubmit} className="space-y-3">
               <input
                 type="email"
