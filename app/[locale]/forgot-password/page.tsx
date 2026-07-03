@@ -19,6 +19,11 @@ export default function ForgotPasswordPage() {
     e.preventDefault();
     setError(null);
 
+    if (!sb) {
+      setError("Supabase 클라이언트를 초기화할 수 없습니다.");
+      return;
+    }
+
     if (!email) {
       setError("이메일을 입력해주세요.");
       return;
