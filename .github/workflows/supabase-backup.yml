@@ -30,14 +30,14 @@ jobs:
           echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
           echo "filename=supabase-backup-$(date +'%Y-%m-%d').sql" >> $GITHUB_OUTPUT
 
-      - name: Dump Supabase database
+      - name: Dump Supabase database (via Session Pooler / IPv4)
         env:
           PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
         run: |
           pg_dump \
             --host=${{ secrets.SUPABASE_DB_HOST }} \
             --port=5432 \
-            --username=postgres \
+            --username=${{ secrets.SUPABASE_DB_USER }} \
             --dbname=postgres \
             --schema=public \
             --schema=auth \
