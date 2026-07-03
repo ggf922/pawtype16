@@ -1,0 +1,52 @@
+name: Deploy Status Notification
+
+on:
+  deployment_status:
+
+jobs:
+  notify:
+    name: Notify on Deploy Result
+    runs-on: ubuntu-latest
+    if: github.event.deployment_status.state != 'pending' && github.event.deployment_status.state != 'in_progress'
+
+    steps:
+      - name: Create issue on deploy failure
+        if: github.event.deployment_status.state == 'failure' || github.event.deployment_status.state == 'error'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const deployment = context.payload.deployment;
+            const status = context.payload.deployment_status;
+            
+            const title = `🚨 Deploy Failed: ${deployment.sha.substring(0, 7)}`;
+            const body = `
+            ## 배포 실패 알림
+            
+            **환경**: ${deployment.environment}
+            **커밋**: [\`${deployment.sha.substring(0, 7)}\`](${context.payload.repository.html_url}/commit/${deployment.sha})
+            **상태**: ${status.state}
+            **설명**: ${status.description || '(설명 없음)'}
+            **로그 URL**: ${status.log_url || status.target_url || '(없음)'}
+            
+            ---
+            
+            자동 생성된 알림 (GitHub Actions)
+            `;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: title,
+              body: body,
+              labels: ['deploy-failure', 'auto-generated']
+            });
+            
+            console.log('✅ Issue created for deploy failure');
+
+      - name: Log successful deploy
+        if: github.event.deployment_status.state == 'success'
+        run: |
+          echo "✅ Deploy successful"
+          echo "Environment: ${{ github.event.deployment_status.environment }}"
+          echo "URL: ${{ github.event.deployment_status.target_url }}"
