@@ -1,31 +1,26 @@
-# GitHub Actions — basic CI for every push and pull request.
-# Verifies that the project builds cleanly on a fresh Node.js environment.
-# This catches issues BEFORE Vercel deploys.
-
-name: CI
+name: CI - Build Verification
 
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Build & Type Check
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [20.x]
+    timeout-minutes: 10
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: "20"
           cache: "npm"
 
       - name: Install dependencies
@@ -33,10 +28,19 @@ jobs:
 
       - name: Type check
         run: npx tsc --noEmit
+        continue-on-error: false
 
-      - name: Build
-        run: npm run build
+      - name: Build Next.js app
         env:
-          # Dummy values so the build doesn't fail on missing env vars.
-          # Real keys are set in Vercel project settings.
-          NEXT_PUBLIC_SITE_URL: https://example.com
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key' }}
+        run: npm run build
+
+      - name: Report build status
+        if: always()
+        run: |
+          if [ ${{ job.status }} = 'success' ]; then
+            echo "✅ Build succeeded"
+          else
+            echo "❌ Build failed - check logs above"
+          fi
