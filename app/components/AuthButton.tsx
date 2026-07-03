@@ -76,6 +76,18 @@ export default function AuthButton({ locale: localeProp }: AuthButtonProps = {})
     return () => subscription.unsubscribe();
   }, [sb]);
 
+  // 모달 열릴 때 body 스크롤 방지
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [showModal]);
+
   async function handleGoogleSignIn() {
     if (!sb) {
       setError("Supabase 클라이언트를 초기화할 수 없습니다.");
@@ -131,7 +143,6 @@ export default function AuthButton({ locale: localeProp }: AuthButtonProps = {})
   async function handleSignOut() {
     setMenuOpen(false);
     if (!sb) {
-      // Supabase 없어도 최소 홈으로 이동
       router.push(`/${locale}`);
       return;
     }
@@ -141,7 +152,6 @@ export default function AuthButton({ locale: localeProp }: AuthButtonProps = {})
       router.push(`/${locale}`);
       router.refresh();
     } catch (err) {
-      // 실패해도 홈으로 이동
       router.push(`/${locale}`);
     }
   }
@@ -221,112 +231,122 @@ export default function AuthButton({ locale: localeProp }: AuthButtonProps = {})
         로그인
       </button>
 
+      {/* 모달: fixed inset-0로 전체 화면 고정, 내부 스크롤 */}
       {showModal && (
         <div
-          className="fixed inset-0 bg-black/50 z-50 overflow-y-auto p-4"
+          className="fixed inset-0 z-[100] bg-black/60"
           onClick={closeModal}
+          style={{ position: "fixed" }}
         >
-          <div className="min-h-full flex items-center justify-center py-4">
-            <div
-              className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 my-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="text-center mb-6">
-                <div className="text-4xl mb-2">🐾</div>
-                <h2 className="text-xl font-bold">로그인</h2>
-                <p className="text-charcoal/60 text-sm mt-1">
-                  PawType-16에 오신 것을 환영합니다
-                </p>
-              </div>
-
-              <button
-                onClick={handleGoogleSignIn}
-                disabled={busy}
-                className="w-full flex items-center justify-center gap-3 rounded-lg border border-charcoal/20 bg-white px-4 py-3 hover:bg-cream font-semibold text-sm disabled:opacity-50 mb-4"
+          {/* 스크롤 가능한 컨테이너 */}
+          <div
+            className="fixed inset-0 overflow-y-auto"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
+            <div className="min-h-full flex items-start sm:items-center justify-center p-4 sm:py-8">
+              <div
+                className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 relative mt-16 sm:mt-0"
+                onClick={(e) => e.stopPropagation()}
               >
-                <svg width="18" height="18" viewBox="0 0 18 18">
-                  <path
-                    fill="#4285F4"
-                    d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.997 8.997 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 7.294C4.672 5.167 6.656 3.58 9 3.58z"
-                  />
-                </svg>
-                Google로 계속하기
-              </button>
+                {/* 우측 상단 닫기 X 버튼 */}
+                <button
+                  onClick={closeModal}
+                  aria-label="닫기"
+                  className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-charcoal/5 text-charcoal/60 hover:text-charcoal"
+                >
+                  ✕
+                </button>
 
-              <div className="flex items-center gap-3 my-4">
-                <div className="flex-1 h-px bg-charcoal/10" />
-                <span className="text-xs text-charcoal/40">또는</span>
-                <div className="flex-1 h-px bg-charcoal/10" />
-              </div>
-
-              <form onSubmit={handleEmailSubmit} className="space-y-3">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="이메일"
-                  className="w-full px-4 py-2.5 rounded-lg border border-charcoal/20 focus:border-accent focus:outline-none text-sm"
-                />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  placeholder="비밀번호"
-                  className="w-full px-4 py-2.5 rounded-lg border border-charcoal/20 focus:border-accent focus:outline-none text-sm"
-                />
-
-                {error && (
-                  <div className="p-2 rounded-lg bg-red-50 text-red-700 text-xs">
-                    {error}
-                  </div>
-                )}
+                <div className="text-center mb-6">
+                  <div className="text-4xl mb-2">🐾</div>
+                  <h2 className="text-xl font-bold">로그인</h2>
+                  <p className="text-charcoal/60 text-sm mt-1">
+                    PawType-16에 오신 것을 환영합니다
+                  </p>
+                </div>
 
                 <button
-                  type="submit"
+                  onClick={handleGoogleSignIn}
                   disabled={busy}
-                  className="w-full rounded-lg bg-charcoal text-white font-semibold py-2.5 hover:bg-charcoal/90 disabled:opacity-50 text-sm"
+                  className="w-full flex items-center justify-center gap-3 rounded-lg border border-charcoal/20 bg-white px-4 py-3 hover:bg-cream font-semibold text-sm disabled:opacity-50 mb-4"
                 >
-                  {busy ? "로그인 중..." : "이메일로 로그인"}
+                  <svg width="18" height="18" viewBox="0 0 18 18">
+                    <path
+                      fill="#4285F4"
+                      d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.997 8.997 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 7.294C4.672 5.167 6.656 3.58 9 3.58z"
+                    />
+                  </svg>
+                  Google로 계속하기
                 </button>
-              </form>
 
-              <div className="mt-4 flex justify-between text-xs">
-                <Link
-                  href={`/${locale}/forgot-password`}
-                  onClick={closeModal}
-                  className="text-charcoal/60 hover:text-accent hover:underline"
-                >
-                  비밀번호 찾기
-                </Link>
-                <Link
-                  href={`/${locale}/signup`}
-                  onClick={closeModal}
-                  className="text-accent font-semibold hover:underline"
-                >
-                  회원가입 →
-                </Link>
+                <div className="flex items-center gap-3 my-4">
+                  <div className="flex-1 h-px bg-charcoal/10" />
+                  <span className="text-xs text-charcoal/40">또는</span>
+                  <div className="flex-1 h-px bg-charcoal/10" />
+                </div>
+
+                <form onSubmit={handleEmailSubmit} className="space-y-3">
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="이메일"
+                    className="w-full px-4 py-2.5 rounded-lg border border-charcoal/20 focus:border-accent focus:outline-none text-sm"
+                  />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="비밀번호"
+                    className="w-full px-4 py-2.5 rounded-lg border border-charcoal/20 focus:border-accent focus:outline-none text-sm"
+                  />
+
+                  {error && (
+                    <div className="p-2 rounded-lg bg-red-50 text-red-700 text-xs">
+                      {error}
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={busy}
+                    className="w-full rounded-lg bg-charcoal text-white font-semibold py-2.5 hover:bg-charcoal/90 disabled:opacity-50 text-sm"
+                  >
+                    {busy ? "로그인 중..." : "이메일로 로그인"}
+                  </button>
+                </form>
+
+                <div className="mt-4 flex justify-between text-xs">
+                  <Link
+                    href={`/${locale}/forgot-password`}
+                    onClick={closeModal}
+                    className="text-charcoal/60 hover:text-accent hover:underline"
+                  >
+                    비밀번호 찾기
+                  </Link>
+                  <Link
+                    href={`/${locale}/signup`}
+                    onClick={closeModal}
+                    className="text-accent font-semibold hover:underline"
+                  >
+                    회원가입 →
+                  </Link>
+                </div>
               </div>
-
-              <button
-                onClick={closeModal}
-                className="w-full mt-4 text-xs text-charcoal/40 hover:text-charcoal/60"
-              >
-                닫기
-              </button>
             </div>
           </div>
         </div>
