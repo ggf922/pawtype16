@@ -47,10 +47,11 @@ export default function HomePage({ params }: { params: { locale: string } }) {
       <section className="relative">
         <div className="mx-auto max-w-6xl px-5 pt-10 md:pt-20 pb-14 md:pb-24 grid md:grid-cols-2 gap-10 md:gap-14 items-center">
           <div className="order-2 md:order-1 animate-fade-in">
-            <span className="inline-flex items-center gap-1 rounded-full bg-beige text-cocoa text-xs font-medium px-3 py-1">
+            <span className="inline-flex items-center gap-1 rounded-full bg-beige text-cocoa text-xs font-medium px-3 py-1 whitespace-nowrap">
               {t(locale, "hero_badge")}
             </span>
-            <h1 className="mt-4 text-3xl md:text-5xl font-extrabold leading-tight text-charcoal">
+            <h1 className="mt-4 text-3xl md:text-5xl font-extrabold leading-[1.3] md:leading-[1.2] text-charcoal break-keep">
+
               {t(locale, "hero_title_1")}
               <br />
               {t(locale, "hero_title_2")} <span className="inline-block">🐾</span>
