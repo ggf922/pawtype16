@@ -412,11 +412,12 @@ function ResultInner() {
       </section>
 
       {/* AdFit 광고 영역 - 활성화됨 */}
-      <AdFitBanner />
-
+      <section className="mx-auto max-w-6xl px-5 py-6 flex justify-center">
+        <AdFitBanner />
       </section>
 
       <section className="mx-auto max-w-6xl px-5 mt-10 mb-16 text-center">
+
         <button
           onClick={restart}
           className="text-charcoal/70 hover:text-cocoa text-sm underline-slide"
