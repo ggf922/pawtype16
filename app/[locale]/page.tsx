@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { Locale, isLocale, t } from "../lib/i18n";
 import LocaleSwitcher from "../components/LocaleSwitcher";
 import AuthButton from "../components/AuthButton";
-import AdFitBanner from "./components/AdFitBanner";
+import AdFitBanner from "../components/AdFitBanner";
 
 export default function HomePage({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
