@@ -171,15 +171,20 @@ export default function HomePage({ params }: { params: { locale: string } }) {
             </div>
           </div>
 
-          <div className="relative w-full aspect-square rounded-[36px] overflow-hidden shadow-lg ring-1 ring-beige">
-            <Image
-              src="/images/hero-cat.jpg"
-              alt="A cozy moment with a cat"
-              fill
-              sizes="(max-width: 768px) 100vw, 420px"
-              className="object-cover"
+          <div className="relative w-full aspect-[3/4] rounded-[36px] overflow-hidden shadow-lg ring-1 ring-beige">
+            <video
+              src="/images/family-with-pets.mp4"
+              poster="/images/family-with-pets-poster.jpg"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="metadata"
+              className="absolute inset-0 w-full h-full object-cover"
+              aria-label="반려동물과 함께하는 가족의 따뜻한 순간"
             />
           </div>
+
         </div>
       </section>
 
