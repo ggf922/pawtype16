@@ -12,6 +12,7 @@ import {
 } from "../../lib/quiz";
 import { encodeShare } from "../../lib/share-code";
 import { Locale, isLocale, t } from "../../lib/i18n";
+import AdFitBanner from "../../components/AdFitBanner";
 
 type Step = "intro" | "transition" | "loading" | number;
 type PetKind = "dog" | "cat";
@@ -357,6 +358,14 @@ function QuizShell({
         </div>
       </header>
       <div className="mx-auto max-w-6xl px-5">{children}</div>
+      {/* AdFit 광고 영역 - 퀴즈 페이지 하단 */}
+      <section className="mx-auto max-w-6xl px-5 py-6 flex justify-center">
+        <AdFitBanner
+          adUnitMobile="DAN-TrprD0R9KJhilvOZ"
+          adUnitPc="DAN-zoObKYKvdmiKcD0d"
+        />
+      </section>
     </main>
   );
 }
+
