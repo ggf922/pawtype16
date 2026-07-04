@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Locale, isLocale, t } from "../lib/i18n";
 import LocaleSwitcher from "../components/LocaleSwitcher";
 import AuthButton from "../components/AuthButton";
+import AdFitBanner from "./components/AdFitBanner";
 
 export default function HomePage({ params }: { params: { locale: string } }) {
   if (!isLocale(params.locale)) notFound();
@@ -94,8 +95,17 @@ export default function HomePage({ params }: { params: { locale: string } }) {
         </div>
       </section>
 
+      {/* AdFit 광고 영역 - 히어로와 Why 섹션 사이 */}
+      <section className="mx-auto max-w-6xl px-5 py-6 flex justify-center">
+        <AdFitBanner
+          adUnitMobile="DAN-BsercUGiOOF1n3f9"
+          adUnitPc="DAN-OAKFCKdcL2PcJs9x"
+        />
+      </section>
+
       {/* Why */}
       <section className="bg-beige/40 border-y border-beige">
+
         <div className="mx-auto max-w-6xl px-5 py-14 md:py-20">
           <h2 className="text-center text-2xl md:text-3xl font-bold text-charcoal">
             {t(locale, "why_title")}
