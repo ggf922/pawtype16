@@ -411,10 +411,14 @@ function ResultInner() {
         />
       </section>
 
-      {/* AdFit 광고 영역 - 활성화됨 */}
+      {/* AdFit 광고 영역 - 반응형 (모바일 320x100 / PC 728x90) */}
       <section className="mx-auto max-w-6xl px-5 py-6 flex justify-center">
-        <AdFitBanner />
+        <AdFitBanner
+          adUnitMobile="DAN-Qi4CHnEvseWwqcwb"
+          adUnitPc="DAN-TQjPODDs5dW0k7Xc"
+        />
       </section>
+
 
       <section className="mx-auto max-w-6xl px-5 mt-10 mb-16 text-center">
 
