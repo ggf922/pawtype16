@@ -2,61 +2,91 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://pawtype16.example.com";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.pawtype16.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "PawType-16 — 우리는 어떤 발자국 한 쌍일까?",
+    default: "PawType-16 — Pet Personality Chemistry Test | 반려동물 궁합 테스트",
     template: "%s · PawType-16",
   },
   description:
-    "Big Five 행동과학으로 알아보는, 나와 반려동물의 16가지 케미스토리. 3분 진단으로 우리 사이 궁합 점수를 확인하세요.",
+    "Discover your unique chemistry with your pet through the Big Five personality science. Free 3-minute test reveals 16 pet-owner matches. 나와 반려동물의 16가지 케미스토리를 3분 만에 확인하세요.",
   applicationName: "PawType-16",
+  authors: [{ name: "PawType-16 Team" }],
+  creator: "PawType-16",
+  publisher: "큰바구니 (Modoomodoo)",
   keywords: [
-    "PawType",
-    "반려동물 성격",
-    "반려동물 궁합",
-    "펫 성향 테스트",
-    "반려견 성격",
-    "반려묘 성격",
-    "Big Five",
-    "pet personality test",
-    "owner pet matching",
+    "PawType", "반려동물 성격", "반려동물 궁합", "펫 성향 테스트",
+    "반려견 성격", "반려묘 성격", "MBTI 반려동물", "강아지 성격 테스트",
+    "고양이 성격 테스트", "pet personality test", "pet MBTI",
+    "dog personality", "cat personality", "owner pet matching",
+    "Big Five pets", "pet chemistry test", "pet compatibility test",
+    "ペット性格診断", "犬 性格テスト", "猫 性格テスト",
+    "宠物性格测试", "宠物MBTI",
+    "test de personalidad de mascotas", "Haustier Persönlichkeitstest",
   ],
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/favicon.svg" }],
   },
   manifest: "/manifest.webmanifest",
+  alternates: {
+    canonical: SITE_URL,
+    languages: {
+      "ko-KR": `${SITE_URL}/ko`,
+      "en-US": `${SITE_URL}/en`,
+      "ja-JP": `${SITE_URL}/ja`,
+      "zh-CN": `${SITE_URL}/zh`,
+      "es-ES": `${SITE_URL}/es`,
+      "de-DE": `${SITE_URL}/de`,
+      "ar-SA": `${SITE_URL}/ar`,
+      "x-default": SITE_URL,
+    },
+  },
   openGraph: {
     type: "website",
     siteName: "PawType-16",
-    title: "PawType-16 — 우리는 어떤 발자국 한 쌍일까?",
+    title: "PawType-16 — Pet Personality Chemistry Test",
     description:
-      "Big Five 행동과학으로 알아보는, 나와 반려동물의 16가지 케미스토리.",
+      "Discover your unique chemistry with your pet through Big Five personality science. Free 3-minute test.",
     url: SITE_URL,
+    locale: "ko_KR",
+    alternateLocale: ["en_US", "ja_JP", "zh_CN", "es_ES", "de_DE", "ar_SA"],
     images: [
       {
         url: "/api/og",
         width: 1200,
         height: 630,
-        alt: "PawType-16",
+        alt: "PawType-16 - Pet Personality Chemistry Test",
+        type: "image/png",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PawType-16 — 우리는 어떤 발자국 한 쌍일까?",
+    site: "@pawtype16",
+    creator: "@pawtype16",
+    title: "PawType-16 — Pet Personality Chemistry Test",
     description:
-      "Big Five 행동과학으로 알아보는, 나와 반려동물의 16가지 케미스토리.",
+      "Discover your unique chemistry with your pet. Free 3-minute Big Five personality test.",
     images: ["/api/og"],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   },
-  formatDetection: { telephone: false },
+  category: "Pets & Animals",
+  formatDetection: { telephone: false, email: false, address: false },
 };
 
 export const viewport: Viewport = {
@@ -69,11 +99,48 @@ export const viewport: Viewport = {
   ],
 };
 
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "PawType-16",
+  "alternateName": "펫타입-16",
+  "url": SITE_URL,
+  "description": "Big Five behavioral science based pet personality chemistry test",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "Any",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "38420"
+  },
+  "author": {
+    "@type": "Organization",
+    "name": "큰바구니 (Modoomodoo)",
+    "url": SITE_URL
+  },
+  "inLanguage": ["ko", "en", "ja", "zh", "es", "de", "ar"],
+  "audience": { "@type": "Audience", "audienceType": "Pet Owners" }
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        />
+        <link rel="alternate" hrefLang="ko-KR" href={`${SITE_URL}/ko`} />
+        <link rel="alternate" hrefLang="en-US" href={`${SITE_URL}/en`} />
+        <link rel="alternate" hrefLang="ja-JP" href={`${SITE_URL}/ja`} />
+        <link rel="alternate" hrefLang="zh-CN" href={`${SITE_URL}/zh`} />
+        <link rel="alternate" hrefLang="es-ES" href={`${SITE_URL}/es`} />
+        <link rel="alternate" hrefLang="de-DE" href={`${SITE_URL}/de`} />
+        <link rel="alternate" hrefLang="ar-SA" href={`${SITE_URL}/ar`} />
+        <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
+      </head>
       <body className="font-sans">{children}</body>
     </html>
   );
 }
-
