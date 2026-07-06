@@ -1,72 +1,75 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 
 /**
- * AdFit 반응형 배너 컴포넌트 (v3 - SSR 최적화)
+ * AdFit 반응형 배너 컴포넌트 (v4 - 인라인 style 제거 + SDK 강제 로드)
  *
- * - 서버 렌더링 시 광고 태그 즉시 삽입 (빈 div 문제 해결)
- * - CSS media query로 모바일/PC 자동 전환
- * - AdFit SDK가 페이지 로드 즉시 광고 자리 인식
+ * 수정 포인트:
+ * 1. style={{ display: "none" }} 인라인 제거 → Tailwind 클래스가 정상 작동
+ * 2. AdFit SDK를 <Script> 없이 매 마운트 시 안전하게 확인/삽입
+ * 3. 모바일/PC 각각 별도 wrapper로 분리하여 CSS 충돌 방지
  */
 
 interface AdFitBannerProps {
-  /** 모바일용 320x100 광고 단위 ID */
   adUnitMobile: string;
-  /** PC용 728x90 광고 단위 ID (선택: 없으면 모바일 사이즈 사용) */
   adUnitPc?: string;
-  /** 추가 CSS 클래스 */
   className?: string;
 }
 
-// AdFit SDK 로드 상태 추적 (페이지당 1번만 로드)
-let sdkLoaded = false;
+const ADFIT_SDK_SRC = "//t1.kakaocdn.net/kas/static/ba.min.js";
+
+function ensureAdFitSdk() {
+  if (typeof window === "undefined") return;
+  // 이미 로드된 스크립트가 있는지 확인
+  const existing = document.querySelector(
+    `script[src="${ADFIT_SDK_SRC}"], script[src="https:${ADFIT_SDK_SRC}"]`
+  );
+  if (existing) return;
+
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = ADFIT_SDK_SRC;
+  script.async = true;
+  document.body.appendChild(script);
+}
 
 export default function AdFitBanner({
   adUnitMobile,
   adUnitPc,
   className = "",
 }: AdFitBannerProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    if (!wrapperRef.current) return;
-
-    // AdFit SDK 로드 (한 번만)
-    if (!sdkLoaded && typeof window !== "undefined") {
-      const script = document.createElement("script");
-      script.type = "text/javascript";
-      script.src = "//t1.kakaocdn.net/kas/static/ba.min.js";
-      script.async = true;
-      document.body.appendChild(script);
-      sdkLoaded = true;
-    }
+    ensureAdFitSdk();
   }, []);
 
   return (
     <div
-      ref={wrapperRef}
-      className={`flex justify-center my-6 ${className}`}
+      className={`w-full flex justify-center my-6 ${className}`}
       aria-label="광고"
     >
       {/* 모바일 광고 (< 768px에서만 표시) */}
-      <ins
-        className="kakao_ad_area md:!hidden"
-        style={{ display: "none" }}
-        data-ad-unit={adUnitMobile}
-        data-ad-width="320"
-        data-ad-height="100"
-      />
+      <div className="block md:hidden">
+        <ins
+          className="kakao_ad_area"
+          style={{ display: "block" }}
+          data-ad-unit={adUnitMobile}
+          data-ad-width="320"
+          data-ad-height="100"
+        />
+      </div>
 
       {/* PC 광고 (>= 768px에서만 표시) */}
       {adUnitPc && (
-        <ins
-          className="kakao_ad_area !hidden md:!inline-block"
-          style={{ display: "none" }}
-          data-ad-unit={adUnitPc}
-          data-ad-width="728"
-          data-ad-height="90"
-        />
+        <div className="hidden md:block">
+          <ins
+            className="kakao_ad_area"
+            style={{ display: "block" }}
+            data-ad-unit={adUnitPc}
+            data-ad-width="728"
+            data-ad-height="90"
+          />
+        </div>
       )}
     </div>
   );
