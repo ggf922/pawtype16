@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-
 /**
- * AdFit 반응형 배너 컴포넌트 (v4 - 인라인 style 제거 + SDK 강제 로드)
+ * AdFit 반응형 배너 컴포넌트 (v5 - SDK는 layout.tsx에서 전역 로드)
  *
- * 수정 포인트:
- * 1. style={{ display: "none" }} 인라인 제거 → Tailwind 클래스가 정상 작동
- * 2. AdFit SDK를 <Script> 없이 매 마운트 시 안전하게 확인/삽입
- * 3. 모바일/PC 각각 별도 wrapper로 분리하여 CSS 충돌 방지
+ * - SDK 로드는 app/layout.tsx의 <Script>가 담당
+ * - 이 컴포넌트는 광고 자리(<ins>)만 렌더링
+ * - 모바일/PC를 CSS로 분리
  */
 
 interface AdFitBannerProps {
@@ -17,38 +14,17 @@ interface AdFitBannerProps {
   className?: string;
 }
 
-const ADFIT_SDK_SRC = "//t1.kakaocdn.net/kas/static/ba.min.js";
-
-function ensureAdFitSdk() {
-  if (typeof window === "undefined") return;
-  // 이미 로드된 스크립트가 있는지 확인
-  const existing = document.querySelector(
-    `script[src="${ADFIT_SDK_SRC}"], script[src="https:${ADFIT_SDK_SRC}"]`
-  );
-  if (existing) return;
-
-  const script = document.createElement("script");
-  script.type = "text/javascript";
-  script.src = ADFIT_SDK_SRC;
-  script.async = true;
-  document.body.appendChild(script);
-}
-
 export default function AdFitBanner({
   adUnitMobile,
   adUnitPc,
   className = "",
 }: AdFitBannerProps) {
-  useEffect(() => {
-    ensureAdFitSdk();
-  }, []);
-
   return (
     <div
       className={`w-full flex justify-center my-6 ${className}`}
       aria-label="광고"
     >
-      {/* 모바일 광고 (< 768px에서만 표시) */}
+      {/* 모바일 광고 (< 768px) */}
       <div className="block md:hidden">
         <ins
           className="kakao_ad_area"
@@ -59,7 +35,7 @@ export default function AdFitBanner({
         />
       </div>
 
-      {/* PC 광고 (>= 768px에서만 표시) */}
+      {/* PC 광고 (>= 768px) */}
       {adUnitPc && (
         <div className="hidden md:block">
           <ins
