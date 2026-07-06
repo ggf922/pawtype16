@@ -1,3 +1,4 @@
+import Script from "next/script";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
@@ -146,7 +147,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="alternate" hrefLang="ar-SA" href={`${SITE_URL}/ar`} />
         <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
       </head>
-      <body className="font-sans">{children}</body>
+      <body>
+      {children}
+      {/* AdFit SDK - 전체 사이트에서 광고 렌더링 보장 */}
+      <Script
+        src="//t1.kakaocdn.net/kas/static/ba.min.js"
+        strategy="afterInteractive"
+      />
+      </body>
     </html>
   );
 }
