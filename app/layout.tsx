@@ -150,10 +150,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
       {children}
       {/* AdFit SDK - 전체 사이트에서 광고 렌더링 보장 */}
-      <Script
-        src="//t1.kakaocdn.net/kas/static/ba.min.js"
-        strategy="afterInteractive"
-      />
       </body>
     </html>
   );
