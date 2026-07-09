@@ -44,6 +44,11 @@ export default function Footer() {
                   검사 시작
                 </Link>
               </li>
+              <li>
+                <Link href={`/${locale}/types`} className="hover:text-orange-600 transition">
+                  16가지 유형 도감
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
