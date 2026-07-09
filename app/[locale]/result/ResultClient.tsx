@@ -225,7 +225,11 @@ function ResultInner() {
             </Link>
           </div>
         </section>
-      )}
+       )}
+      {/* AdFit 300x250 광고 (결과 카드 위) */}
+      <section className="mx-auto max-w-6xl px-5 mb-6 flex justify-center">
+        <AdFitBanner adUnit300="DAN-wsGaT4mbWLXZar0g" />
+      </section>
 
       {/* Type cards */}
       <section className="mx-auto max-w-6xl px-5 grid gap-4 md:grid-cols-2">
