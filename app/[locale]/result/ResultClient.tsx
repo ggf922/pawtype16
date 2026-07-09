@@ -413,6 +413,28 @@ function ResultInner() {
 
       {/* AdFit 광고 영역 - 반응형 (모바일 320x100 / PC 728x90) */}
       <section className="mx-auto max-w-6xl px-5 py-6 flex justify-center">
+        // 결과 페이지에 추가할 "내 유형 상세 보기" 링크 섹션
+        // 파일 위치: app/[locale]/result/ResultClient.tsx 안에 삽입
+        // 삽입 위치: 결과 표시 후, AdFit 광고 위쪽
+
+     {/* 내 유형 상세 보기 링크 */}
+     <section className="mx-auto max-w-3xl px-5 py-6">
+     <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-6 text-center border border-orange-100">
+      <h3 className="text-lg font-bold text-neutral-800 mb-2">
+      🔍 내 유형에 대해 더 알고 싶다면?
+      </h3>
+     <p className="text-sm text-neutral-600 mb-4">
+      강점·주의점·추천 활동·궁합까지 자세히 살펴보세요.
+     </p>
+     <Link
+      href={`/${locale}/types`}
+      className="inline-block px-6 py-2.5 bg-orange-500 text-white text-sm font-semibold rounded-full hover:bg-orange-600 transition"
+     >
+      16가지 유형 도감 보기 →
+     </Link>
+     </div>
+     </section>
+
         <AdFitBanner
           adUnitMobile="DAN-Qi4CHnEvseWwqcwb"
           adUnitPc="DAN-TQjPODDs5dW0k7Xc"
