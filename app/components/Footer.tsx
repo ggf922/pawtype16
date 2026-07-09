@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 /**
- * 사이트 전체 푸터 컴포넌트
+ * 사이트 전체 푸터 컴포넌트 v2
  * - AdSense 승인 필수: 개인정보처리방침·이용약관 링크 필수
+ * - 블로그·About·FAQ 링크 추가 (내부 링크 강화 → SEO 향상)
  * - 다국어 지원 (locale에 따라 URL 자동 조정)
  */
 
@@ -30,7 +31,7 @@ export default function Footer() {
         </div>
 
         {/* 링크 섹션 */}
-        <div className="mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+        <div className="mb-6 grid grid-cols-2 sm:grid-cols-5 gap-4 text-sm">
           <div>
             <h3 className="font-semibold text-neutral-800 mb-2">서비스</h3>
             <ul className="space-y-1 text-neutral-600">
@@ -52,8 +53,61 @@ export default function Footer() {
             </ul>
           </div>
           <div>
+            <h3 className="font-semibold text-neutral-800 mb-2">블로그</h3>
+            <ul className="space-y-1 text-neutral-600">
+              <li>
+                <Link
+                  href={`/${locale}/blog/pet-personality-guide`}
+                  className="hover:text-orange-600 transition"
+                >
+                  성격 분석법
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/blog/dog-personality-types`}
+                  className="hover:text-orange-600 transition"
+                >
+                  강아지 성격
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/blog/cat-personality-types`}
+                  className="hover:text-orange-600 transition"
+                >
+                  고양이 성격
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/blog/pet-owner-compatibility`}
+                  className="hover:text-orange-600 transition"
+                >
+                  궁합 분석
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
             <h3 className="font-semibold text-neutral-800 mb-2">회사</h3>
             <ul className="space-y-1 text-neutral-600">
+              <li>
+                <Link
+                  href={`/${locale}/about`}
+                  className="hover:text-orange-600 transition"
+                >
+                  소개
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={`/${locale}/faq`}
+                  className="hover:text-orange-600 transition"
+                >
+                  FAQ
+                </Link>
+              </li>
               <li>
                 <a
                   href="mailto:pawtype16@gmail.com"
