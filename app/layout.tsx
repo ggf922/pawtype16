@@ -154,6 +154,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
        src="//t1.kakaocdn.net/kas/static/ba.min.js"
        strategy="afterInteractive"
       />
+      {/* Google AdSense */}
+     <Script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7342222228523366"
+      crossOrigin="anonymous"
+      strategy="afterInteractive"
+     />
       </body>
     </html>
   );
