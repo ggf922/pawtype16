@@ -1,4 +1,5 @@
 import Script from "next/script";
+import Footer from "./components/Footer";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
@@ -149,18 +150,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
       {children}
-      {/* AdFit SDK - 전체 사이트에서 광고 렌더링 보장 */}
-      <Script
-       src="//t1.kakaocdn.net/kas/static/ba.min.js"
-       strategy="afterInteractive"
+      <Footer />
+        {/* AdFit SDK - 전체 사이트에서 광고 렌더링 보장 */}
+        <Script
+         src="//t1.kakaocdn.net/kas/static/ba.min.js"
+         strategy="afterInteractive"
+        />
+       {/* Google AdSense */}
+       <Script
+        async
+        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7342222228523366"
+        crossOrigin="anonymous"
+        strategy="afterInteractive"
       />
-      {/* Google AdSense */}
-     <Script
-      async
-      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7342222228523366"
-      crossOrigin="anonymous"
-      strategy="afterInteractive"
-     />
+      
       </body>
     </html>
   );
