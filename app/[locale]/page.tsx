@@ -187,6 +187,56 @@ export default function HomePage({ params }: { params: { locale: string } }) {
 
         </div>
       </section>
+      {/* 16가지 유형 미리보기 섹션 - How 섹션 뒤, Social proof 섹션 앞에 삽입 */}
+         <section className="bg-cream border-y border-beige">
+          <div className="mx-auto max-w-6xl px-5 py-14 md:py-20">
+           <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl font-bold text-charcoal">
+              🐾 16가지 케미 유형 미리보기
+            </h2>
+            <p className="mt-2 text-charcoal/60 text-sm md:text-base">
+              나와 반려동물의 케미 유형, 어떤 조합이 있을까요?
+            </p>
+          </div>
+
+          {/* 8개만 미리보기 - 나머지 8개는 도감에서 */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+            {[
+              { emoji: "🌟", code: "HHHH", nameKo: "궁극의 낙천가", slug: "e-h-s-h-a-h-c-h" },
+              { emoji: "🎉", code: "HHHL", nameKo: "열정 폭발형", slug: "e-h-s-h-a-h-c-l" },
+              { emoji: "👑", code: "HHLH", nameKo: "리더형", slug: "e-h-s-h-a-l-c-h" },
+              { emoji: "🎊", code: "HHLL", nameKo: "파티 스타", slug: "e-h-s-h-a-l-c-l" },
+              { emoji: "☮️", code: "LHHH", nameKo: "평화의 수호자", slug: "e-l-s-h-a-h-c-h" },
+              { emoji: "💗", code: "LHHL", nameKo: "감성 소통가", slug: "e-l-s-h-a-h-c-l" },
+              { emoji: "🧘", code: "LLHH", nameKo: "명상형 힐러", slug: "e-l-s-l-a-h-c-h" },
+              { emoji: "🌌", code: "LLLL", nameKo: "신비의 은둔자", slug: "e-l-s-l-a-l-c-l" },
+            ].map((type) => (
+              <Link
+                key={type.code}
+                href={`/${locale}/types/${type.slug}`}
+                className="group bg-white border border-beige rounded-2xl p-4 hover:border-accent hover:shadow-md hover:-translate-y-1 transition text-center"
+              >
+                <div className="text-3xl mb-1">{type.emoji}</div>
+                <div className="text-[10px] font-mono text-charcoal/40 mb-1">
+                  {type.code}
+                </div>
+                <div className="text-sm font-semibold text-charcoal group-hover:text-accent transition">
+                  {type.nameKo}
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <Link
+              href={`/${locale}/types`}
+              className="inline-flex items-center justify-center rounded-full bg-cocoa text-white text-sm md:text-base font-semibold px-6 py-3 hover:bg-cocoa/90 transition"
+            >
+              16가지 유형 전체 보기 →
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* Social proof */}
       <section className="bg-beige/40 border-y border-beige">
