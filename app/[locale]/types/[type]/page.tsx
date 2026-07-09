@@ -1,5 +1,5 @@
 // app/[locale]/types/[type]/page.tsx
-// 16가지 유형 각각의 상세 페이지 (단일 동적 라우트로 16개 URL 자동 생성)
+// 16가지 유형 상세 페이지 (Next.js 14 호환 안전 버전)
 
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -17,9 +17,9 @@ interface Props {
   params: Promise<{ locale: string; type: string }>;
 }
 
-// SSG로 16개 페이지 모두 사전 생성
+// SSG로 페이지 사전 생성 (16 유형 x 7 언어 = 112 페이지)
 export async function generateStaticParams() {
-  const locales: Locale[] = ["ko", "en", "de", "es", "zh", "ja", "ar"];
+  const locales = ["ko", "en", "de", "es", "zh", "ja", "ar"];
   const params: { locale: string; type: string }[] = [];
   for (const locale of locales) {
     for (const type of TYPES) {
@@ -31,10 +31,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale: rawLocale, type: typeSlug } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const locale: Locale = isLocale(rawLocale) ? (rawLocale as Locale) : DEFAULT_LOCALE;
   const type = getTypeBySlug(typeSlug);
 
-  if (!type) return {};
+  if (!type) {
+    return {
+      title: "Not Found | PawType-16",
+    };
+  }
 
   const title = `${type.emoji} ${type.nickname[locale]} (${type.code}) | PawType-16`;
   const description = type.tagline[locale];
@@ -42,29 +46,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: {
-      canonical: `/${locale}/types/${type.slug}`,
-      languages: Object.fromEntries(
-        (Object.keys(TYPE_UI_LABELS) as Locale[]).map((l) => [
-          l,
-          `/${l}/types/${type.slug}`,
-        ])
-      ),
-    },
     openGraph: {
       title,
       description,
-      url: `/${locale}/types/${type.slug}`,
       type: "article",
-      images: [
-        {
-          url: `/api/og?title=${encodeURIComponent(
-            type.nickname[locale]
-          )}&code=${type.code}`,
-          width: 1200,
-          height: 630,
-        },
-      ],
     },
     twitter: {
       card: "summary_large_image",
@@ -104,13 +89,14 @@ function AxisIndicator({
 
 export default async function TypeDetailPage({ params }: Props) {
   const { locale: rawLocale, type: typeSlug } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const locale: Locale = isLocale(rawLocale) ? (rawLocale as Locale) : DEFAULT_LOCALE;
   const type = getTypeBySlug(typeSlug);
   const t = TYPE_UI_LABELS[locale];
 
-  if (!type) notFound();
+  if (!type) {
+    notFound();
+  }
 
-  // 4축 High/Low 파싱
   const axes = {
     E: type.code[0] as "H" | "L",
     S: type.code[1] as "H" | "L",
@@ -118,21 +104,12 @@ export default async function TypeDetailPage({ params }: Props) {
     C: type.code[3] as "H" | "L",
   };
 
-  // JSON-LD 구조화 데이터
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: `${type.nickname[locale]} - ${type.code}`,
     description: type.tagline[locale],
     articleBody: type.description[locale],
-    author: {
-      "@type": "Organization",
-      name: "PawType-16",
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "PawType-16",
-    },
     inLanguage: locale,
   };
 
@@ -167,30 +144,10 @@ export default async function TypeDetailPage({ params }: Props) {
 
         {/* 4축 인디케이터 */}
         <section className="grid grid-cols-2 gap-3 mb-10">
-          <AxisIndicator
-            label={t.axisE}
-            level={axes.E}
-            labelHigh={t.axisHigh}
-            labelLow={t.axisLow}
-          />
-          <AxisIndicator
-            label={t.axisS}
-            level={axes.S}
-            labelHigh={t.axisHigh}
-            labelLow={t.axisLow}
-          />
-          <AxisIndicator
-            label={t.axisA}
-            level={axes.A}
-            labelHigh={t.axisHigh}
-            labelLow={t.axisLow}
-          />
-          <AxisIndicator
-            label={t.axisC}
-            level={axes.C}
-            labelHigh={t.axisHigh}
-            labelLow={t.axisLow}
-          />
+          <AxisIndicator label={t.axisE} level={axes.E} labelHigh={t.axisHigh} labelLow={t.axisLow} />
+          <AxisIndicator label={t.axisS} level={axes.S} labelHigh={t.axisHigh} labelLow={t.axisLow} />
+          <AxisIndicator label={t.axisA} level={axes.A} labelHigh={t.axisHigh} labelLow={t.axisLow} />
+          <AxisIndicator label={t.axisC} level={axes.C} labelHigh={t.axisHigh} labelLow={t.axisLow} />
         </section>
 
         {/* 설명 */}
@@ -264,7 +221,7 @@ export default async function TypeDetailPage({ params }: Props) {
                 <h3 className="font-bold text-pink-700 mb-2">💗 {t.matchBest}</h3>
                 <div className="flex flex-wrap gap-2">
                   {type.matchBest.map((code) => {
-                    const matchType = TYPES.find((t) => t.code === code);
+                    const matchType = TYPES.find((tp) => tp.code === code);
                     if (!matchType) return null;
                     return (
                       <Link
@@ -286,7 +243,7 @@ export default async function TypeDetailPage({ params }: Props) {
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {type.matchChallenge.map((code) => {
-                    const matchType = TYPES.find((t) => t.code === code);
+                    const matchType = TYPES.find((tp) => tp.code === code);
                     if (!matchType) return null;
                     return (
                       <Link
@@ -321,7 +278,3 @@ export default async function TypeDetailPage({ params }: Props) {
     </>
   );
 }
-
-// 정적 페이지로 처리 (성능·SEO 최적화)
-export const dynamic = "force-static";
-export const revalidate = 86400;
