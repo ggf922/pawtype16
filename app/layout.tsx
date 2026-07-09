@@ -91,6 +91,7 @@ export const metadata: Metadata = {
     google: "rB4gzPyN3KaGDbYRfWMAzT23iPDC4xpzJ9aQwFvfo3E",
     other: {
       "naver-site-verification": "fb67c608ddd4291c09e624efad0108093bc9e1ad",
+      "p:domain_verify": "cd9cef0c48deb52861ee3a2e906eb406",
     },
   },
   category: "Pets & Animals",
