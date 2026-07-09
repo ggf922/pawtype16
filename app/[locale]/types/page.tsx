@@ -1,9 +1,15 @@
 // app/[locale]/types/page.tsx
-// 16가지 유형 도감 목록 페이지
+// 16가지 유형 도감 목록 페이지 (Next.js 14 호환 안전 버전)
 
 import Link from "next/link";
 import type { Metadata } from "next";
-import { TYPES, TYPE_UI_LABELS, isLocale, DEFAULT_LOCALE, type Locale } from "../../lib/petTypes";
+import {
+  TYPES,
+  TYPE_UI_LABELS,
+  isLocale,
+  DEFAULT_LOCALE,
+  type Locale,
+} from "../../lib/petTypes";
 
 interface Props {
   params: Promise<{ locale: string }>;
@@ -11,8 +17,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale: rawLocale } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
-  const t = TYPE_UI_LABELS[locale];
+  const locale: Locale = isLocale(rawLocale) ? (rawLocale as Locale) : DEFAULT_LOCALE;
 
   const titles: Record<Locale, string> = {
     ko: "16가지 케미 유형 도감 | PawType-16",
@@ -25,36 +30,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 
   const descriptions: Record<Locale, string> = {
-    ko: "Big Five 행동과학 기반 반려동물-보호자 16가지 케미 유형을 모두 확인하세요. 각 유형별 강점·주의점·추천 활동까지.",
-    en: "Explore all 16 pet-owner chemistry types based on Big Five behavioral science. Strengths, cautions, and activities for each type.",
-    de: "Entdecken Sie alle 16 Haustier-Besitzer-Chemie-Typen basierend auf Big Five.",
-    es: "Explora los 16 tipos de química mascota-dueño basados en Big Five.",
-    zh: "探索基于大五人格科学的16种宠物-主人化学类型。",
-    ja: "Big Five行動科学に基づく16種類のペット-飼い主ケミストリータイプをすべて確認。",
-    ar: "استكشف جميع أنواع الكيمياء الـ 16 بين الحيوان الأليف والمالك.",
+    ko: "Big Five 행동과학 기반 반려동물-보호자 16가지 케미 유형을 모두 확인하세요.",
+    en: "Explore all 16 pet-owner chemistry types based on Big Five behavioral science.",
+    de: "Entdecken Sie alle 16 Haustier-Besitzer-Chemie-Typen.",
+    es: "Explora los 16 tipos de química mascota-dueño.",
+    zh: "探索16种宠物-主人化学类型。",
+    ja: "16種類のペット-飼い主ケミストリータイプ。",
+    ar: "استكشف جميع أنواع الكيمياء الـ 16.",
   };
 
   return {
     title: titles[locale],
     description: descriptions[locale],
-    alternates: {
-      canonical: `/${locale}/types`,
-      languages: Object.fromEntries(
-        (Object.keys(TYPE_UI_LABELS) as Locale[]).map((l) => [l, `/${l}/types`])
-      ),
-    },
-    openGraph: {
-      title: titles[locale],
-      description: descriptions[locale],
-      url: `/${locale}/types`,
-      type: "website",
-    },
   };
 }
 
 export default async function TypesListPage({ params }: Props) {
   const { locale: rawLocale } = await params;
-  const locale: Locale = isLocale(rawLocale) ? rawLocale : DEFAULT_LOCALE;
+  const locale: Locale = isLocale(rawLocale) ? (rawLocale as Locale) : DEFAULT_LOCALE;
   const t = TYPE_UI_LABELS[locale];
 
   return (
@@ -99,7 +92,3 @@ export default async function TypesListPage({ params }: Props) {
     </main>
   );
 }
-
-// 정적 페이지로 처리 (성능·SEO 최적화)
-export const dynamic = "force-static";
-export const revalidate = 86400; // 24시간마다 재생성
