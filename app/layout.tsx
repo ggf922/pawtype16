@@ -135,6 +135,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <head>
+        {/* Google AdSense - MUST BE IN HEAD FOR OWNERSHIP VERIFICATION */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7342222228523366"
+          crossOrigin="anonymous"
+        />
+        <meta name="google-adsense-account" content="ca-pub-7342222228523366" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -149,21 +156,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
       </head>
       <body>
-      {children}
-      <Footer />
+        {children}
+        <Footer />
         {/* AdFit SDK - 전체 사이트에서 광고 렌더링 보장 */}
         <Script
-         src="//t1.kakaocdn.net/kas/static/ba.min.js"
-         strategy="afterInteractive"
+          src="//t1.kakaocdn.net/kas/static/ba.min.js"
+          strategy="afterInteractive"
         />
-       {/* Google AdSense */}
-       <Script
-        async
-        src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7342222228523366"
-        crossOrigin="anonymous"
-        strategy="afterInteractive"
-      />
-      
       </body>
     </html>
   );
