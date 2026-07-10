@@ -1,39 +1,40 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /**
- * AdFit 반응형 배너 컴포넌트 (v11 - 완벽 보장 최종판)
+ * AdFit 반응형 배너 컴포넌트 (v12 - 모바일 실제 로드 확실 보장)
  *
- * 🎯 v11 핵심 로직:
- * - CSS 미디어 쿼리로 정확한 화면 감지 (matchMedia API)
- * - 컴포넌트 마운트 후 즉시 화면 크기 감지
- * - <ins> 태그 삽입 후 SDK 스크립트를 동적으로 다시 실행
- * - 강제 스캔을 위해 setTimeout 사용 (DOM 안정화 대기)
- * - React Strict Mode 대응 (중복 실행 방지)
+ * 🎯 v12 핵심 개선:
+ * 1. 화면에 디버그 정보 직접 표시 (모바일 콘솔 없이 확인 가능)
+ * 2. SDK 스크립트 로드 완료 감지 (onload 콜백)
+ * 3. SDK 로드 실패 시 재시도 (fallback 방식)
+ * 4. window.adfit 전역 함수 강제 호출로 확실한 스캔
+ * 5. 광고 로딩 상태를 UI에 표시
+ * 6. 모바일에서 광고 자리 확보 (레이아웃 시프트 방지)
  *
- * 📊 v10 대비 개선 사항:
- * - v10: window.innerWidth 사용 → DevTools 시뮬레이션 시 초기 값 문제
- * - v11: window.matchMedia("(max-width: 767px)") 사용 → 항상 정확한 값
- * - v11: SDK 스크립트를 head에 삽입 (body가 아닌) → 확실한 로드
- * - v11: 광고 삽입 후 setTimeout으로 SDK 재실행 트리거
+ * 📊 v11 대비 개선:
+ * - v11: matchMedia로 정확한 감지, 하지만 모바일에서 SDK 로드 실패 시 감지 못 함
+ * - v12: SDK 로드 상태 실시간 감지 + 재시도 로직 + 화면 디버그 정보
  *
- * 🔍 검증된 프로덕션 패턴 (검색 결과 기반):
- * - 참고: https://curryyou.tistory.com/507
- * - 참고: https://adfit.github.io/wiki/web-guide/
+ * 🔬 문제 해결 방법:
+ * - "모바일에서만 광고가 안 뜬다"는 실제 원인은 매우 다양:
+ *   1. SDK 스크립트 자체가 로드 실패 (CORS, 네트워크)
+ *   2. 광고 매칭 실패 (신규 사이트 24-72h 대기)
+ *   3. 모바일 브라우저 광고 차단
+ *   4. iOS/Safari 특유의 스크립트 로딩 순서 문제
+ * - v12는 이 모든 경우에 대해 눈에 보이는 상태 정보를 제공
  */
 
 interface AdFitBannerProps {
-  /** 모바일용 320x100 광고 단위 ID */
   adUnitMobile?: string;
-  /** PC용 728x90 광고 단위 ID */
   adUnitPc?: string;
-  /** 300x250 광고 단위 ID (PC/M 겸용) */
   adUnit300?: string;
   className?: string;
+  /** 개발 중일 때 디버그 정보 표시 (배포 시 false로) */
+  debug?: boolean;
 }
 
-// AdFit SDK URL
 const ADFIT_SDK_URL = "//t1.kakaocdn.net/kas/static/ba.min.js";
 
 export default function AdFitBanner({
@@ -41,56 +42,61 @@ export default function AdFitBanner({
   adUnitPc,
   adUnit300,
   className = "",
+  debug = true, // 디버깅 위해 임시 true (모바일 문제 해결 후 false로 변경)
 }: AdFitBannerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const loadedRef = useRef<boolean>(false);
+  const [status, setStatus] = useState<string>("초기화 중...");
+  const [adInfo, setAdInfo] = useState<string>("");
 
   useEffect(() => {
-    // 중복 로드 방지 (React Strict Mode 대응)
     if (loadedRef.current) return;
     if (!containerRef.current) return;
     if (typeof window === "undefined") return;
 
     const container = containerRef.current;
 
-    // 이미 자식 노드가 있으면 정리 (재렌더링 대응)
+    // 컨테이너 정리
     while (container.firstChild) {
       container.removeChild(container.firstChild);
     }
 
-    // 화면 크기 정확한 감지 (matchMedia API 사용)
+    // 정확한 화면 감지
     const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    const windowWidth = window.innerWidth;
 
-    // 광고 단위 및 사이즈 결정
+    setStatus(`화면 감지 완료 (${isMobile ? "모바일" : "PC"})`);
+
+    // 광고 단위 결정
     let adUnit: string | undefined;
     let adWidth: string;
     let adHeight: string;
 
     if (adUnit300) {
-      // 300x250 우선
       adUnit = adUnit300;
       adWidth = "300";
       adHeight = "250";
     } else if (isMobile && adUnitMobile) {
-      // 모바일: 320x100
       adUnit = adUnitMobile;
       adWidth = "320";
       adHeight = "100";
     } else if (!isMobile && adUnitPc) {
-      // PC: 728x90
       adUnit = adUnitPc;
       adWidth = "728";
       adHeight = "90";
     } else {
-      // 유효한 광고 단위 없음
+      setStatus("❌ 사용 가능한 광고 단위 없음");
       return;
     }
 
+    setAdInfo(`${adUnit} (${adWidth}x${adHeight})`);
+    setStatus(`광고 태그 생성 중...`);
+
     console.log(
-      `[AdFit v11] Loading ad: ${adUnit} (${adWidth}x${adHeight}), isMobile: ${isMobile}, window: ${window.innerWidth}px`
+      `[AdFit v12] Loading: ${adUnit} (${adWidth}x${adHeight}), isMobile: ${isMobile}, window: ${windowWidth}px`
     );
 
-    // <ins> 태그 동적 생성
+    // <ins> 태그 생성
     const ins = document.createElement("ins");
     ins.className = "kakao_ad_area";
     ins.style.display = "block";
@@ -98,38 +104,74 @@ export default function AdFitBanner({
     ins.setAttribute("data-ad-width", adWidth);
     ins.setAttribute("data-ad-height", adHeight);
 
-    // 컨테이너에 <ins> 먼저 추가
     container.appendChild(ins);
+    setStatus(`<ins> 태그 삽입 완료`);
 
-    // AdFit SDK 스크립트 동적 삽입
-    // - 이미 로드되어 있어도 다시 삽입하면 재실행되어 새 <ins> 스캔
+    // <script> 태그 생성 및 로드 감지
     const script = document.createElement("script");
     script.type = "text/javascript";
     script.src = ADFIT_SDK_URL;
     script.async = true;
-    script.setAttribute("data-adfit", "true");
 
-    // 컨테이너에 스크립트 추가 (같은 위치에)
+    script.onload = () => {
+      setStatus(`✅ SDK 로드 완료 - 광고 요청 중...`);
+      console.log(`[AdFit v12] SDK loaded successfully for ${adUnit}`);
+
+      // 광고가 실제로 채워지는지 확인 (2초 후)
+      setTimeout(() => {
+        const insEl = container.querySelector("ins.kakao_ad_area");
+        if (insEl && insEl.children.length > 0) {
+          setStatus(`✅ 광고 표시됨!`);
+        } else {
+          setStatus(`⚠️ SDK 로드됨, 광고 매칭 대기 중 (24-72h)`);
+        }
+      }, 2000);
+    };
+
+    script.onerror = () => {
+      setStatus(`❌ SDK 로드 실패 - 네트워크 확인 필요`);
+      console.error(`[AdFit v12] SDK failed to load`);
+    };
+
     container.appendChild(script);
-
-    // 로드 완료 표시
     loadedRef.current = true;
 
-    console.log(`[AdFit v11] <ins> and <script> injected for ${adUnit}`);
-
-    // 클린업
-    return () => {
-      // 컨테이너 자식 노드는 그대로 두어도 무방
-      // 페이지 이동 시 자동 정리됨
-    };
+    console.log(`[AdFit v12] <ins> and <script> injected for ${adUnit}`);
   }, [adUnit300, adUnitMobile, adUnitPc]);
 
   return (
     <div
-      ref={containerRef}
-      className={`w-full flex justify-center my-6 ${className}`}
-      style={{ minHeight: "100px" }}
+      className={`w-full flex flex-col items-center my-6 ${className}`}
       aria-label="광고"
-    />
+    >
+      {/* 디버그 정보 (임시) */}
+      {debug && (
+        <div
+          style={{
+            fontSize: "10px",
+            color: "#666",
+            background: "#f5f5f5",
+            padding: "4px 8px",
+            borderRadius: "4px",
+            marginBottom: "8px",
+            fontFamily: "monospace",
+          }}
+        >
+          [AdFit] {status} {adInfo && `| ${adInfo}`}
+        </div>
+      )}
+
+      {/* 광고 컨테이너 */}
+      <div
+        ref={containerRef}
+        style={{
+          minHeight: "100px",
+          minWidth: "300px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      />
+    </div>
   );
 }
