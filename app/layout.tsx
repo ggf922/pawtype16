@@ -1,9 +1,13 @@
 import Footer from "./components/Footer";
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.pawtype16.com";
+
+// Google Analytics 4 Measurement ID
+const GA_MEASUREMENT_ID = "G-SEVSPYG4RP";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -142,10 +146,38 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           crossOrigin="anonymous"
         />
         <meta name="google-adsense-account" content="ca-pub-7342222228523366" />
+
+        {/* ============================================
+            Google Analytics 4 (GA4)
+            Measurement ID: G-SEVSPYG4RP
+            <head> 안에 직접 삽입 - Google 태그 감지 보장
+            ============================================ */}
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}', {
+                page_path: window.location.pathname,
+                anonymize_ip: true,
+                cookie_flags: 'SameSite=None;Secure'
+              });
+            `,
+          }}
+        />
+
+        {/* Structured Data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
+
+        {/* Alternate languages */}
         <link rel="alternate" hrefLang="ko-KR" href={`${SITE_URL}/ko`} />
         <link rel="alternate" hrefLang="en-US" href={`${SITE_URL}/en`} />
         <link rel="alternate" hrefLang="ja-JP" href={`${SITE_URL}/ja`} />
@@ -160,9 +192,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Footer />
         {/*
           AdFit SDK는 layout.tsx에서 제거됨
-          → AdFitBanner v10 컴포넌트가 자체적으로 스크립트를 관리
-          → 각 광고 인스턴스마다 <ins> + <script>를 함께 삽입하여
-            AdFit SDK가 확실히 <ins>를 스캔하도록 함
+          → AdFitBanner v15 컴포넌트가 자체적으로 스크립트를 관리
         */}
       </body>
     </html>
