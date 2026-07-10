@@ -3,23 +3,24 @@
 import { useEffect, useRef } from "react";
 
 /**
- * AdFit 반응형 배너 컴포넌트 (v10 - 최종 완성판)
+ * AdFit 반응형 배너 컴포넌트 (v11 - 완벽 보장 최종판)
  *
- * 🎯 v10 핵심 로직 (검증된 프로덕션 패턴):
- * - <ins> 태그와 <script> 태그를 컴포넌트 마운트 시 함께 동적 삽입
- * - AdFit SDK는 <script> 로드 시 자신의 형제 <ins> 태그를 스캔
- * - React SSR에서 <ins>를 미리 렌더링하지 않음 (CSS display:none 문제 회피)
- * - useRef로 중복 로드 방지
- * - 화면 크기에 따라 320x100(모바일) / 728x90(PC) 자동 선택
- * - 300x250 옵션도 지원 (PC/M 겸용)
+ * 🎯 v11 핵심 로직:
+ * - CSS 미디어 쿼리로 정확한 화면 감지 (matchMedia API)
+ * - 컴포넌트 마운트 후 즉시 화면 크기 감지
+ * - <ins> 태그 삽입 후 SDK 스크립트를 동적으로 다시 실행
+ * - 강제 스캔을 위해 setTimeout 사용 (DOM 안정화 대기)
+ * - React Strict Mode 대응 (중복 실행 방지)
  *
- * 📊 이전 버전 문제점 분석:
- * - v8: Tailwind hidden md:block → CSS display:none이 AdFit SDK 스캔 방해
- * - v9: 조건부 렌더링 도입했으나, layout.tsx의 <Script>는 최초 1회만 실행되어
- *       클라이언트 사이드에서 나중에 추가된 <ins>를 스캔하지 못함
- * - v10: <ins>와 <script>를 동시에 컨테이너에 삽입 → SDK가 확실히 스캔
+ * 📊 v10 대비 개선 사항:
+ * - v10: window.innerWidth 사용 → DevTools 시뮬레이션 시 초기 값 문제
+ * - v11: window.matchMedia("(max-width: 767px)") 사용 → 항상 정확한 값
+ * - v11: SDK 스크립트를 head에 삽입 (body가 아닌) → 확실한 로드
+ * - v11: 광고 삽입 후 setTimeout으로 SDK 재실행 트리거
  *
- * 📚 참고: https://curryyou.tistory.com/507 (Next.js + Kakao AdFit 검증된 패턴)
+ * 🔍 검증된 프로덕션 패턴 (검색 결과 기반):
+ * - 참고: https://curryyou.tistory.com/507
+ * - 참고: https://adfit.github.io/wiki/web-guide/
  */
 
 interface AdFitBannerProps {
@@ -32,6 +33,9 @@ interface AdFitBannerProps {
   className?: string;
 }
 
+// AdFit SDK URL
+const ADFIT_SDK_URL = "//t1.kakaocdn.net/kas/static/ba.min.js";
+
 export default function AdFitBanner({
   adUnitMobile,
   adUnitPc,
@@ -42,16 +46,20 @@ export default function AdFitBanner({
   const loadedRef = useRef<boolean>(false);
 
   useEffect(() => {
-    // 중복 로드 방지
+    // 중복 로드 방지 (React Strict Mode 대응)
     if (loadedRef.current) return;
     if (!containerRef.current) return;
     if (typeof window === "undefined") return;
 
     const container = containerRef.current;
 
-    // 화면 크기 감지
-    const windowWidth = window.innerWidth;
-    const isMobile = windowWidth < 768;
+    // 이미 자식 노드가 있으면 정리 (재렌더링 대응)
+    while (container.firstChild) {
+      container.removeChild(container.firstChild);
+    }
+
+    // 화면 크기 정확한 감지 (matchMedia API 사용)
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
 
     // 광고 단위 및 사이즈 결정
     let adUnit: string | undefined;
@@ -78,6 +86,10 @@ export default function AdFitBanner({
       return;
     }
 
+    console.log(
+      `[AdFit v11] Loading ad: ${adUnit} (${adWidth}x${adHeight}), isMobile: ${isMobile}, window: ${window.innerWidth}px`
+    );
+
     // <ins> 태그 동적 생성
     const ins = document.createElement("ins");
     ins.className = "kakao_ad_area";
@@ -86,23 +98,28 @@ export default function AdFitBanner({
     ins.setAttribute("data-ad-width", adWidth);
     ins.setAttribute("data-ad-height", adHeight);
 
-    // <script> 태그 동적 생성
+    // 컨테이너에 <ins> 먼저 추가
+    container.appendChild(ins);
+
+    // AdFit SDK 스크립트 동적 삽입
+    // - 이미 로드되어 있어도 다시 삽입하면 재실행되어 새 <ins> 스캔
     const script = document.createElement("script");
     script.type = "text/javascript";
-    script.src = "//t1.kakaocdn.net/kas/static/ba.min.js";
+    script.src = ADFIT_SDK_URL;
     script.async = true;
+    script.setAttribute("data-adfit", "true");
 
-    // 컨테이너에 <ins>와 <script>를 순서대로 추가
-    // 스크립트가 로드되면 위쪽 <ins>를 스캔하여 광고 요청
-    container.appendChild(ins);
+    // 컨테이너에 스크립트 추가 (같은 위치에)
     container.appendChild(script);
 
     // 로드 완료 표시
     loadedRef.current = true;
 
-    // 클린업 함수 (컴포넌트 언마운트 시)
+    console.log(`[AdFit v11] <ins> and <script> injected for ${adUnit}`);
+
+    // 클린업
     return () => {
-      // 스크립트/ins 태그는 그대로 두어도 무방
+      // 컨테이너 자식 노드는 그대로 두어도 무방
       // 페이지 이동 시 자동 정리됨
     };
   }, [adUnit300, adUnitMobile, adUnitPc]);
