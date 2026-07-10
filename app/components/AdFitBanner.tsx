@@ -1,78 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 
 /**
- * AdFit 반응형 배너 컴포넌트 (v9 - 모바일 광고 요청 문제 완전 해결)
+ * AdFit 반응형 배너 컴포넌트 (v10 - 최종 완성판)
  *
- * 🎯 v9 핵심 변경사항 (v8 대비):
- * - Tailwind의 `hidden md:block` 방식 폐기 (CSS display:none 사용 → AdFit SDK가 스캔 실패)
- * - JavaScript `useMediaQuery` 훅으로 실제 화면 너비 감지 후 조건부 렌더링
- * - 모바일 접속 시 오직 모바일 <ins>만 DOM에 존재 → AdFit SDK가 정상 스캔 → 광고 요청 발생
- * - PC 접속 시 오직 PC <ins>만 DOM에 존재 → PC 광고만 요청
+ * 🎯 v10 핵심 로직 (검증된 프로덕션 패턴):
+ * - <ins> 태그와 <script> 태그를 컴포넌트 마운트 시 함께 동적 삽입
+ * - AdFit SDK는 <script> 로드 시 자신의 형제 <ins> 태그를 스캔
+ * - React SSR에서 <ins>를 미리 렌더링하지 않음 (CSS display:none 문제 회피)
+ * - useRef로 중복 로드 방지
+ * - 화면 크기에 따라 320x100(모바일) / 728x90(PC) 자동 선택
+ * - 300x250 옵션도 지원 (PC/M 겸용)
  *
- * 📊 문제 진단 근거:
- * - AdFit 대시보드에서 모바일 광고단위(DAN-BsercUGiOOF1n3f9) 요청수 0
- * - PC 광고단위(DAN-OAKFCKdcL2PcJs9x) 요청수 100+ (정상 작동)
- * - HTML에는 두 태그 모두 존재하지만 CSS display:none이 SDK 스캔 방해
+ * 📊 이전 버전 문제점 분석:
+ * - v8: Tailwind hidden md:block → CSS display:none이 AdFit SDK 스캔 방해
+ * - v9: 조건부 렌더링 도입했으나, layout.tsx의 <Script>는 최초 1회만 실행되어
+ *       클라이언트 사이드에서 나중에 추가된 <ins>를 스캔하지 못함
+ * - v10: <ins>와 <script>를 동시에 컨테이너에 삽입 → SDK가 확실히 스캔
  *
- * 🔧 작동 원리:
- * 1. 초기 렌더링: null 반환 (하이드레이션 오류 방지)
- * 2. useEffect로 window.innerWidth 확인 → isMobile 상태 설정
- * 3. isMobile === true → 모바일 <ins> 렌더링
- * 4. isMobile === false → PC <ins> 렌더링
- * 5. DOM에 렌더링 완료 후 AdFit SDK가 자동으로 광고 요청
+ * 📚 참고: https://curryyou.tistory.com/507 (Next.js + Kakao AdFit 검증된 패턴)
  */
 
 interface AdFitBannerProps {
-  /** 모바일용 320x100 광고 단위 ID (반응형 모드) */
+  /** 모바일용 320x100 광고 단위 ID */
   adUnitMobile?: string;
-  /** PC용 728x90 광고 단위 ID (반응형 모드) */
+  /** PC용 728x90 광고 단위 ID */
   adUnitPc?: string;
   /** 300x250 광고 단위 ID (PC/M 겸용) */
   adUnit300?: string;
   className?: string;
-}
-
-/**
- * 화면 너비 감지 훅
- * - 768px 미만이면 mobile
- * - 768px 이상이면 desktop
- */
-function useIsMobile(): boolean | null {
-  const [isMobile, setIsMobile] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    // SSR 환경 대응
-    if (typeof window === "undefined") return;
-
-    const check = () => setIsMobile(window.innerWidth < 768);
-
-    // 초기 체크
-    check();
-
-    // 리사이즈 감지 (테블릿 회전 등 대응)
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  return isMobile;
-}
-
-/**
- * AdFit SDK 재스캔 트리거
- * - <ins> 태그가 DOM에 추가된 후 SDK가 자동으로 스캔하지만,
- *   클라이언트 사이드에서 동적으로 추가된 경우 강제 스캔 필요
- */
-function triggerAdFitScan() {
-  if (typeof window === "undefined") return;
-  // AdFit SDK의 전역 함수 호출
-  const win = window as unknown as { kakao_ad_area?: () => void };
-  try {
-    win.kakao_ad_area?.();
-  } catch (e) {
-    // SDK가 아직 로드되지 않은 경우 무시
-  }
 }
 
 export default function AdFitBanner({
@@ -81,65 +38,81 @@ export default function AdFitBanner({
   adUnit300,
   className = "",
 }: AdFitBannerProps) {
-  const isMobile = useIsMobile();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const loadedRef = useRef<boolean>(false);
 
-  // <ins> 태그가 DOM에 추가된 직후 AdFit SDK에 스캔 요청
   useEffect(() => {
-    if (isMobile === null) return;
-    // 100ms 지연으로 DOM 렌더링 완료 후 스캔
-    const timer = setTimeout(triggerAdFitScan, 100);
-    return () => clearTimeout(timer);
-  }, [isMobile]);
+    // 중복 로드 방지
+    if (loadedRef.current) return;
+    if (!containerRef.current) return;
+    if (typeof window === "undefined") return;
 
-  // 초기 렌더링 시 (isMobile === null) 아무것도 렌더링하지 않음
-  // → 하이드레이션 오류 방지 & 잘못된 광고 요청 방지
-  if (isMobile === null) {
-    return (
-      <div
-        className={`w-full flex justify-center my-6 ${className}`}
-        style={{ minHeight: "100px" }}
-        aria-label="광고 로딩 중"
-      />
-    );
-  }
+    const container = containerRef.current;
+
+    // 화면 크기 감지
+    const windowWidth = window.innerWidth;
+    const isMobile = windowWidth < 768;
+
+    // 광고 단위 및 사이즈 결정
+    let adUnit: string | undefined;
+    let adWidth: string;
+    let adHeight: string;
+
+    if (adUnit300) {
+      // 300x250 우선
+      adUnit = adUnit300;
+      adWidth = "300";
+      adHeight = "250";
+    } else if (isMobile && adUnitMobile) {
+      // 모바일: 320x100
+      adUnit = adUnitMobile;
+      adWidth = "320";
+      adHeight = "100";
+    } else if (!isMobile && adUnitPc) {
+      // PC: 728x90
+      adUnit = adUnitPc;
+      adWidth = "728";
+      adHeight = "90";
+    } else {
+      // 유효한 광고 단위 없음
+      return;
+    }
+
+    // <ins> 태그 동적 생성
+    const ins = document.createElement("ins");
+    ins.className = "kakao_ad_area";
+    ins.style.display = "block";
+    ins.setAttribute("data-ad-unit", adUnit);
+    ins.setAttribute("data-ad-width", adWidth);
+    ins.setAttribute("data-ad-height", adHeight);
+
+    // <script> 태그 동적 생성
+    const script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src = "//t1.kakaocdn.net/kas/static/ba.min.js";
+    script.async = true;
+
+    // 컨테이너에 <ins>와 <script>를 순서대로 추가
+    // 스크립트가 로드되면 위쪽 <ins>를 스캔하여 광고 요청
+    container.appendChild(ins);
+    container.appendChild(script);
+
+    // 로드 완료 표시
+    loadedRef.current = true;
+
+    // 클린업 함수 (컴포넌트 언마운트 시)
+    return () => {
+      // 스크립트/ins 태그는 그대로 두어도 무방
+      // 페이지 이동 시 자동 정리됨
+    };
+  }, [adUnit300, adUnitMobile, adUnitPc]);
 
   return (
     <div
+      ref={containerRef}
       className={`w-full flex justify-center my-6 ${className}`}
+      style={{ minHeight: "100px" }}
       aria-label="광고"
-    >
-      {/* 300x250 광고 (PC/M 겸용, 지정된 경우 우선) */}
-      {adUnit300 && (
-        <ins
-          className="kakao_ad_area"
-          style={{ display: "block" }}
-          data-ad-unit={adUnit300}
-          data-ad-width="300"
-          data-ad-height="250"
-        />
-      )}
-
-      {/* 모바일 광고 (< 768px) - adUnit300 없을 때만 */}
-      {!adUnit300 && isMobile && adUnitMobile && (
-        <ins
-          className="kakao_ad_area"
-          style={{ display: "block" }}
-          data-ad-unit={adUnitMobile}
-          data-ad-width="320"
-          data-ad-height="100"
-        />
-      )}
-
-      {/* PC 광고 (>= 768px) - adUnit300 없을 때만 */}
-      {!adUnit300 && !isMobile && adUnitPc && (
-        <ins
-          className="kakao_ad_area"
-          style={{ display: "block" }}
-          data-ad-unit={adUnitPc}
-          data-ad-width="728"
-          data-ad-height="90"
-        />
-      )}
-    </div>
+    />
   );
 }
