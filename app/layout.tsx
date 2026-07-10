@@ -1,4 +1,3 @@
-import Script from "next/script";
 import Footer from "./components/Footer";
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
@@ -159,11 +158,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         {children}
         <Footer />
-        {/* AdFit SDK - 전체 사이트에서 광고 렌더링 보장 */}
-        <Script
-          src="//t1.kakaocdn.net/kas/static/ba.min.js"
-          strategy="afterInteractive"
-        />
+        {/*
+          AdFit SDK는 layout.tsx에서 제거됨
+          → AdFitBanner v10 컴포넌트가 자체적으로 스크립트를 관리
+          → 각 광고 인스턴스마다 <ins> + <script>를 함께 삽입하여
+            AdFit SDK가 확실히 <ins>를 스캔하도록 함
+        */}
       </body>
     </html>
   );
