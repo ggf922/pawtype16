@@ -3,32 +3,37 @@
 import { useEffect, useRef, useState } from "react";
 
 /**
- * AdFit 반응형 배너 컴포넌트 (v15 - 최종 프로덕션 + 광고 자리 유지)
+ * AdFitBanner v16 - 모바일 광고 요청 보장 최종 버전
  *
- * 🎯 v15 핵심:
- * - v14의 문제 해결: 광고 매칭 전에도 자리 유지
- * - <ins> 태그가 비어있을 때 placeholder 표시
- * - 광고 로드되면 placeholder 자동 숨김
- * - 매칭 대기 중일 때도 사용자에게 이상하지 않게 보임
+ * v15 문제:
+ *   - 5초 후 자동 hide 로직이 SDK 요청까지 취소시킴
+ *   - AdFit 대시보드에 모바일 요청 0건 발생
  *
- * 📊 이전 버전 문제:
- * - v14: 광고 매칭 안 되면 화면에 완전 빈 공간 → 사용자 혼란
- * - v15: 광고 매칭 안 되면 얇은 자리표시자만 보임 → 자연스러움
- *
- * 🎨 UI 전략:
- * - 광고 매칭 성공 → placeholder 자동 숨김, 광고만 표시
- * - 광고 매칭 실패 → 아주 얇은 자리표시자 유지 (사용자 방해 최소)
- * - 3초 후에도 광고 없으면 placeholder를 조용히 숨김
+ * v16 개선:
+ *   1. Hide 로직 완전 제거 - 항상 렌더링 (요청 보장)
+ *   2. matchMedia API로 정확한 뷰포트 감지
+ *   3. GA4 이벤트 통합 - 광고 로드/실패 추적
+ *   4. Intersection Observer로 광고 뷰어빌리티 측정
+ *   5. Cleanup 로직 강화 - 페이지 이동 시 메모리 누수 방지
  */
 
 interface AdFitBannerProps {
-  adUnitMobile?: string;
-  adUnitPc?: string;
-  adUnit300?: string;
+  adUnitMobile?: string; // e.g., "DAN-BsercUGiOOF1n3f9" (320x100)
+  adUnitPc?: string; // e.g., "DAN-OAKFCKdcL2PcJs9x" (728x90)
+  adUnit300?: string; // e.g., "DAN-xxx" (300x250 - result page)
   className?: string;
 }
 
-const ADFIT_SDK_URL = "//t1.kakaocdn.net/kas/static/ba.min.js";
+// GA4에 이벤트 전송하는 헬퍼 함수
+function trackAdEvent(action: string, label: string) {
+  if (typeof window !== "undefined" && (window as any).gtag) {
+    (window as any).gtag("event", action, {
+      event_category: "adfit_ad",
+      event_label: label,
+      non_interaction: true,
+    });
+  }
+}
 
 export default function AdFitBanner({
   adUnitMobile,
@@ -37,120 +42,169 @@ export default function AdFitBanner({
   className = "",
 }: AdFitBannerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const loadedRef = useRef<boolean>(false);
-  const [adLoaded, setAdLoaded] = useState<boolean>(false);
-  const [shouldHide, setShouldHide] = useState<boolean>(false);
+  const initialized = useRef(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean | null>(null);
 
+  // 1) 클라이언트 마운트 감지 (SSR hydration mismatch 방지)
   useEffect(() => {
-    if (loadedRef.current) return;
+    setIsMounted(true);
+  }, []);
+
+  // 2) matchMedia로 정확한 뷰포트 감지
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const mq = window.matchMedia("(max-width: 767px)");
+    setIsMobile(mq.matches);
+
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, [isMounted]);
+
+  // 3) 광고 로드 - matchMedia 결과가 확정된 후 실행
+  useEffect(() => {
+    if (!isMounted || isMobile === null || initialized.current) return;
     if (!containerRef.current) return;
-    if (typeof window === "undefined") return;
 
-    const container = containerRef.current;
-
-    while (container.firstChild) {
-      container.removeChild(container.firstChild);
-    }
-
-    const isMobile = window.matchMedia("(max-width: 767px)").matches;
-
-    let adUnit: string | undefined;
-    let adWidth: string;
-    let adHeight: string;
-
+    // 300x250 모드 (result 페이지)
     if (adUnit300) {
-      adUnit = adUnit300;
-      adWidth = "300";
-      adHeight = "250";
-    } else if (isMobile && adUnitMobile) {
-      adUnit = adUnitMobile;
-      adWidth = "320";
-      adHeight = "100";
-    } else if (!isMobile && adUnitPc) {
-      adUnit = adUnitPc;
-      adWidth = "728";
-      adHeight = "90";
-    } else {
+      loadAd({
+        container: containerRef.current,
+        adUnit: adUnit300,
+        width: "300",
+        height: "250",
+        label: "300x250",
+      });
+      initialized.current = true;
       return;
     }
 
-    const ins = document.createElement("ins");
-    ins.className = "kakao_ad_area";
-    ins.style.cssText = "display:block !important; margin:0 auto;";
-    ins.setAttribute("data-ad-unit", adUnit);
-    ins.setAttribute("data-ad-width", adWidth);
-    ins.setAttribute("data-ad-height", adHeight);
+    // 모바일 광고 (320x100)
+    if (isMobile && adUnitMobile) {
+      loadAd({
+        container: containerRef.current,
+        adUnit: adUnitMobile,
+        width: "320",
+        height: "100",
+        label: "mobile-320x100",
+      });
+      initialized.current = true;
+      return;
+    }
 
-    const script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src = ADFIT_SDK_URL;
-    script.async = true;
+    // PC 광고 (728x90)
+    if (!isMobile && adUnitPc) {
+      loadAd({
+        container: containerRef.current,
+        adUnit: adUnitPc,
+        width: "728",
+        height: "90",
+        label: "pc-728x90",
+      });
+      initialized.current = true;
+      return;
+    }
+  }, [isMounted, isMobile, adUnitMobile, adUnitPc, adUnit300]);
 
-    container.appendChild(ins);
-    container.appendChild(script);
+  // 4) Intersection Observer - 광고 뷰어빌리티 추적 (GA4)
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-    loadedRef.current = true;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            trackAdEvent("ad_viewed", "AdFit banner in view");
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
 
-    // 광고 로드 확인 (2초 후)
-    const checkAdTimer = setTimeout(() => {
-      const insEl = container.querySelector("ins.kakao_ad_area");
-      if (insEl && insEl.children.length > 0) {
-        // 광고 성공적으로 로드됨
-        setAdLoaded(true);
-      }
-    }, 2000);
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
-    // 5초 후에도 광고 없으면 컨테이너 완전 숨김 (자연스러운 UX)
-    const hideTimer = setTimeout(() => {
-      const insEl = container.querySelector("ins.kakao_ad_area");
-      if (!insEl || insEl.children.length === 0) {
-        setShouldHide(true);
-      }
-    }, 5000);
-
+  // 5) Cleanup - 언마운트 시 광고 스크립트 정리
+  useEffect(() => {
     return () => {
-      clearTimeout(checkAdTimer);
-      clearTimeout(hideTimer);
+      if (containerRef.current) {
+        // Cleanup 시에도 initialized 유지 - 재삽입 방지
+        containerRef.current.innerHTML = "";
+      }
     };
-  }, [adUnit300, adUnitMobile, adUnitPc]);
-
-  // 광고 크기별 최소 높이
-  const minHeight = adUnit300 ? 250 : 100;
-
-  // 5초 후 광고 없으면 완전 숨김
-  if (shouldHide) {
-    return null;
-  }
+  }, []);
 
   return (
     <div
-      className={className}
+      ref={containerRef}
+      className={`adfit-banner-container ${className}`}
       style={{
+        width: "100%",
         display: "flex",
-        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        width: "100%",
-        minHeight: adLoaded ? `${minHeight}px` : "20px",
-        margin: adLoaded ? "24px 0" : "8px 0",
-        transition: "min-height 0.3s ease, margin 0.3s ease",
-        visibility: "visible",
-        opacity: 1,
+        minHeight: "100px",
       }}
       aria-label="광고"
-    >
-      <div
-        ref={containerRef}
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: adLoaded ? `${minHeight}px` : "0px",
-          width: "100%",
-          maxWidth: "728px",
-          transition: "min-height 0.3s ease",
-        }}
-      />
-    </div>
+    />
   );
+}
+
+/**
+ * AdFit <ins> + <script>를 함께 삽입하는 함수
+ * 각 광고 인스턴스마다 SDK를 새로 로드하여 스캔 보장
+ */
+function loadAd({
+  container,
+  adUnit,
+  width,
+  height,
+  label,
+}: {
+  container: HTMLElement;
+  adUnit: string;
+  width: string;
+  height: string;
+  label: string;
+}) {
+  // 컨테이너 초기화
+  container.innerHTML = "";
+
+  // <ins> 태그 생성
+  const ins = document.createElement("ins");
+  ins.className = "kakao_ad_area";
+  ins.style.display = "block";
+  ins.setAttribute("data-ad-unit", adUnit);
+  ins.setAttribute("data-ad-width", width);
+  ins.setAttribute("data-ad-height", height);
+
+  // <script> 태그 생성 (AdFit SDK)
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = "//t1.kakaocdn.net/kas/static/ba.min.js";
+  script.async = true;
+
+  // 스크립트 로드 성공 시 GA4 이벤트 전송
+  script.onload = () => {
+    trackAdEvent("ad_sdk_loaded", `${label} (${adUnit})`);
+    console.log(`[AdFit v16] SDK loaded for ${label}:`, adUnit);
+  };
+
+  // 스크립트 로드 실패 시 GA4 이벤트 전송
+  script.onerror = () => {
+    trackAdEvent("ad_sdk_error", `${label} (${adUnit})`);
+    console.error(`[AdFit v16] SDK load failed for ${label}:`, adUnit);
+  };
+
+  // DOM에 순서대로 삽입 (ins 먼저, script 나중)
+  container.appendChild(ins);
+  container.appendChild(script);
+
+  // GA4에 광고 요청 이벤트 전송
+  trackAdEvent("ad_requested", `${label} (${adUnit})`);
+  console.log(`[AdFit v16] Ad requested: ${label}`, adUnit);
 }
