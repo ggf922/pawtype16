@@ -98,7 +98,7 @@ export default function HomePage({ params }: { params: { locale: string } }) {
       {/* AdFit 광고 영역 - 히어로와 Why 섹션 사이 */}
       <section className="mx-auto max-w-6xl px-5 py-6 flex justify-center">
         <AdFitBanner
-          adUnitMobile="DAN-BsercUGiOOF1n3f9"
+          adUnitMobile="DAN-BsercUGIOOF1n3f9"
           adUnitPc="DAN-OAKFCKdcL2PcJs9x"
         />
       </section>
