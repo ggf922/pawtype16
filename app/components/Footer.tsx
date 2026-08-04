@@ -4,10 +4,11 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 
 /**
- * 사이트 전체 푸터 컴포넌트 v2
- * - AdSense 승인 필수: 개인정보처리방침·이용약관 링크 필수
- * - 블로그·About·FAQ 링크 추가 (내부 링크 강화 → SEO 향상)
- * - 다국어 지원 (locale에 따라 URL 자동 조정)
+ * 사이트 전체 푸터 컴포넌트 v3
+ * - AdSense 승인 필수: 개인정보처리방침·이용약관·문의하기 링크 필수
+ * - 견종별 블로그 5개 링크 추가 (SEO 강화)
+ * - Contact 페이지 링크 연결 (mailto → /contact)
+ * - 다국어 지원
  */
 
 export default function Footer() {
@@ -52,93 +53,95 @@ export default function Footer() {
               </li>
             </ul>
           </div>
+
           <div>
             <h3 className="font-semibold text-neutral-800 mb-2">블로그</h3>
             <ul className="space-y-1 text-neutral-600">
               <li>
-                <Link
-                  href={`/${locale}/blog/pet-personality-guide`}
-                  className="hover:text-orange-600 transition"
-                >
+                <Link href={`/${locale}/blog/pet-personality-guide`} className="hover:text-orange-600 transition">
                   성격 분석법
                 </Link>
               </li>
               <li>
-                <Link
-                  href={`/${locale}/blog/dog-personality-types`}
-                  className="hover:text-orange-600 transition"
-                >
+                <Link href={`/${locale}/blog/dog-personality-types`} className="hover:text-orange-600 transition">
                   강아지 성격
                 </Link>
               </li>
               <li>
-                <Link
-                  href={`/${locale}/blog/cat-personality-types`}
-                  className="hover:text-orange-600 transition"
-                >
+                <Link href={`/${locale}/blog/cat-personality-types`} className="hover:text-orange-600 transition">
                   고양이 성격
                 </Link>
               </li>
               <li>
-                <Link
-                  href={`/${locale}/blog/pet-owner-compatibility`}
-                  className="hover:text-orange-600 transition"
-                >
+                <Link href={`/${locale}/blog/pet-owner-compatibility`} className="hover:text-orange-600 transition">
                   궁합 분석
                 </Link>
               </li>
             </ul>
           </div>
+
+          <div>
+            <h3 className="font-semibold text-neutral-800 mb-2">견종별 가이드</h3>
+            <ul className="space-y-1 text-neutral-600">
+              <li>
+                <Link href={`/${locale}/blog/maltese-personality-guide`} className="hover:text-orange-600 transition">
+                  🤍 말티즈 성격
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${locale}/blog/poodle-personality-types`} className="hover:text-orange-600 transition">
+                  🎩 푸들 성격
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${locale}/blog/shiba-inu-personality`} className="hover:text-orange-600 transition">
+                  🦊 시바견 성격
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${locale}/blog/pomeranian-personality-guide`} className="hover:text-orange-600 transition">
+                  🍊 포메 성격
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${locale}/blog/golden-retriever-personality`} className="hover:text-orange-600 transition">
+                  🌟 골든 성격
+                </Link>
+              </li>
+            </ul>
+          </div>
+
           <div>
             <h3 className="font-semibold text-neutral-800 mb-2">회사</h3>
             <ul className="space-y-1 text-neutral-600">
               <li>
-                <Link
-                  href={`/${locale}/about`}
-                  className="hover:text-orange-600 transition"
-                >
+                <Link href={`/${locale}/about`} className="hover:text-orange-600 transition">
                   소개
                 </Link>
               </li>
               <li>
-                <Link
-                  href={`/${locale}/faq`}
-                  className="hover:text-orange-600 transition"
-                >
+                <Link href={`/${locale}/faq`} className="hover:text-orange-600 transition">
                   FAQ
                 </Link>
               </li>
               <li>
-                <a
-                  href="mailto:pawtype16@gmail.com"
-                  className="hover:text-orange-600 transition"
-                >
-                  문의하기
-                </a>
+                <Link href={`/${locale}/contact`} className="hover:text-orange-600 transition font-semibold">
+                  📮 문의하기
+                </Link>
               </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold text-neutral-800 mb-2">정책</h3>
-            <ul className="space-y-1 text-neutral-600">
               <li>
-                <Link
-                  href={`/${locale}/privacy`}
-                  className="hover:text-orange-600 transition"
-                >
+                <Link href={`/${locale}/privacy`} className="hover:text-orange-600 transition">
                   개인정보처리방침
                 </Link>
               </li>
               <li>
-                <Link
-                  href={`/${locale}/terms`}
-                  className="hover:text-orange-600 transition"
-                >
+                <Link href={`/${locale}/terms`} className="hover:text-orange-600 transition">
                   이용약관
                 </Link>
               </li>
             </ul>
           </div>
+
           <div>
             <h3 className="font-semibold text-neutral-800 mb-2">언어</h3>
             <ul className="space-y-1 text-neutral-600 text-xs">
