@@ -13,12 +13,10 @@ const TYPE_SLUGS = [
 
 // 블로그 포스트 slug (기존 4개 + 신규 5개 = 총 9개)
 const BLOG_SLUGS = [
-  // 기존 4개
   "pet-personality-guide",
   "dog-personality-types",
   "cat-personality-types",
   "pet-owner-compatibility",
-  // 신규 5개 (견종별 SEO 확장)
   "maltese-personality-guide",
   "poodle-personality-types",
   "shiba-inu-personality",
@@ -26,12 +24,13 @@ const BLOG_SLUGS = [
   "golden-retriever-personality",
 ];
 
-// 정적 페이지 slug
+// 정적 페이지 slug (Contact 추가!)
 const STATIC_SLUGS = [
   "", // home
   "quiz",
   "about",
   "faq",
+  "contact", // ← 신규 추가!
   "privacy",
   "terms",
   "types",
@@ -41,7 +40,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
   const entries: MetadataRoute.Sitemap = [];
 
-  // 정적 페이지 (7개 언어 × 7개 = 49개)
+  // 정적 페이지 (7개 언어 × 8개 = 56개)
   for (const locale of LOCALES) {
     for (const slug of STATIC_SLUGS) {
       const path = slug ? `/${locale}/${slug}` : `/${locale}`;
@@ -73,7 +72,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
         url: `${SITE_URL}/${locale}/blog/${blogSlug}`,
         lastModified: now,
         changeFrequency: "monthly",
-        priority: 0.9, // 블로그는 SEO 핵심
+        priority: 0.9,
       });
     }
   }
